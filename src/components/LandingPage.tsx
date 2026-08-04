@@ -17,7 +17,7 @@ export default function LandingPage({ onEnter, isDark, toggleDark }: LandingPage
           Chào mừng bạn đến với
         </p>
         
-        <h1 className="text-6xl md:text-8xl lg:text-9xl font-script font-bold text-lime-900 dark:text-lime-50 mb-16 text-center drop-shadow-md">
+        <h1 className="text-6xl md:text-8xl lg:text-9xl font-script font-bold text-[#3C5C1D] mb-16 text-center drop-shadow-md">
           Ổ Roleplay nhà Chanh
         </h1>
 
