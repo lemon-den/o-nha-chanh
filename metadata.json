@@ -1,0 +1,6 @@
+{
+  "name": "Ổ Roleplay nhà Chanh",
+  "description": "Một cơ sở dữ liệu tối giản để lưu trữ, sắp xếp và tìm kiếm các nhân vật roleplay cá nhân.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Quicksand", sans-serif;
+  --font-serif: "Fraunces", serif;
+  --font-script: "Dancing Script", cursive;
+}
+
+@layer utilities {
+  .bg-custom-pattern {
+    background-color: #e5eedf;
+    background-image: url('/background.jpg');
+    background-repeat: repeat;
+    background-size: auto;
+  }
+  .dark .bg-custom-pattern {
+    background-color: #1a241a;
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/background.jpg');
+    background-repeat: repeat;
+    background-size: auto;
+  }
+}
+
+@layer components {
+  .markdown-body h1 { @apply text-4xl font-serif font-bold mt-10 mb-6 text-stone-800 dark:text-stone-100 tracking-tight leading-tight; }
+  .markdown-body h2 { @apply text-2xl font-serif font-bold mt-8 mb-5 text-stone-800 dark:text-stone-100 tracking-tight; }
+  .markdown-body h3 { @apply text-xl font-serif font-bold mt-6 mb-4 text-stone-800 dark:text-stone-100; }
+  .markdown-body p { @apply mb-5 leading-relaxed text-stone-600 dark:text-stone-300 text-[1.05rem]; }
+  .markdown-body ul { @apply list-disc list-inside mb-6 text-stone-600 dark:text-stone-300 space-y-2; }
+  .markdown-body ol { @apply list-decimal list-inside mb-6 text-stone-600 dark:text-stone-300 space-y-2; }
+  .markdown-body li::marker { @apply text-lime-500; }
+  .markdown-body blockquote { @apply border-l-4 border-lime-300 dark:border-lime-700 pl-6 py-1 italic text-stone-500 dark:text-stone-400 mb-6 bg-lime-50/50 dark:bg-lime-900/20 rounded-r-xl; }
+  .markdown-body strong { @apply font-bold text-stone-900 dark:text-stone-50; }
+  .markdown-body em { @apply italic text-stone-700 dark:text-stone-300; }
+  .markdown-body a { @apply text-lime-700 dark:text-lime-400 hover:text-lime-800 dark:hover:text-lime-300 hover:underline underline-offset-4 decoration-lime-300 transition-colors; }
+  .markdown-body hr { @apply border-lime-100 dark:border-lime-900/50 my-10; }
+  .markdown-body code { @apply bg-yellow-50 dark:bg-yellow-900/20 text-stone-800 dark:text-stone-200 px-1.5 py-0.5 rounded-md text-sm font-mono border border-yellow-100 dark:border-yellow-900/30; }
+  .markdown-body pre { @apply bg-[#2c3e2d] text-stone-50 p-6 rounded-2xl overflow-x-auto mb-6 text-sm font-mono shadow-sm; }
+  .markdown-body pre code { @apply bg-transparent text-inherit p-0 border-none; }
+}
+
+/* Đổi con trỏ chuột mặc định thành lát chanh */
+body {
+  cursor: auto;
+}
+
+/* Đổi luôn con trỏ chuột khi chỉ vào các nút bấm, đường link */
+a, button {
+  cursor: pointer !important;
+}
