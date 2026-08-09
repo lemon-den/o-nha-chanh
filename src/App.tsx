@@ -80,43 +80,28 @@ export default function App() {
         </div>
       </header>
 
-{/* WIDGET NÚT NHẠC THU GỌN - CHỈ HIỆN ICON BẤM BẬT/TẮT */}
-      <div className="fixed bottom-6 left-6 z-40 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-yellow-200 flex items-center gap-3">
-        <button 
-          onClick={() => {
-            const iframe = document.getElementById('yt-audio-player') as HTMLIFrameElement;
-            if (iframe) {
-              // Gửi lệnh play/pause ngầm qua lại cho YouTube
-              const isPlaying = iframe.dataset.playing === 'true';
-              iframe.contentWindow?.postMessage(
-                JSON.stringify({ event: 'command', func: isPlaying ? 'pauseVideo' : 'playVideo', args: '' }), 
-                '*'
-              );
-              iframe.dataset.playing = isPlaying ? 'false' : 'true';
-            }
-          }}
-          className="flex items-center gap-2.5 group cursor-pointer focus:outline-none"
-        >
-          <div className="w-8 h-8 rounded-full bg-[#fde047] group-hover:bg-[#facc15] flex items-center justify-center text-[#3C5C1D] shadow-sm transition-transform group-hover:scale-105">
-            <Music className="w-4 h-4" />
-          </div>
-          <span className="text-xs font-bold text-[#3C5C1D] tracking-wide pr-1">
-            Bật/Tắt Nhạc Chill 🎵
-          </span>
-        </button>
-
-        {/* Khung YouTube player giấu tịt đi, chỉ để chạy âm thanh ngầm */}
-        <iframe 
-          id="yt-audio-player"
-          width="0" 
-          height="0" 
-          src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&enablejsapi=1&autoplay=1&loop=1" 
-          title="Hidden YouTube Audio" 
-          className="hidden"
-          allow="autoplay"
-        />
+{/* WIDGET NHẠC YOUTUBE - CÓ TIÊU ĐỀ BÀI HÁT */}
+      <div className={`fixed bottom-6 left-6 z-40 p-3 rounded-3xl shadow-2xl border-2 flex items-center gap-3 transition-colors ${isDark ? 'bg-[#1a241a] border-lime-800' : 'bg-[#FFF9C4] border-[#FDE047]'}`}>
+        
+        {/* Icon nhạc */}
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm shrink-0 ${isDark ? 'bg-lime-900 text-lime-300' : 'bg-[#fde047] text-[#3C5C1D]'}`}>
+          <Music className="w-5 h-5 animate-pulse" />
+        </div>
+        
+        {/* Khung YouTube Player: Để rộng 300px để nó hiện tên bài hát */}
+        <div className="overflow-hidden rounded-2xl border border-yellow-200/50 bg-black/10">
+          <iframe 
+            width="300" 
+            height="50" 
+            src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX" 
+            title="Music" 
+            className="opacity-95 hover:opacity-100 transition-opacity border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
       </div>
-
+      
       <main className="max-w-7xl mx-auto px-6 py-12">
         {view.type === 'list' && (
           <Dashboard 
