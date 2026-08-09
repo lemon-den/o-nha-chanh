@@ -7,9 +7,11 @@ interface DashboardProps {
   characters: Character[];
   onCreate: () => void;
   onEdit: (id: string) => void;
+  isAdmin: boolean;
+  isDark: boolean;
 }
 
-export default function Dashboard({ characters, onCreate, onEdit }: DashboardProps) {
+export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDark }: DashboardProps) {
   // Khởi tạo trạng thái Chủ Ổ (nhớ luôn kể cả khi f5 tải lại trang)
   const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('bossChanh') === 'true');
 
