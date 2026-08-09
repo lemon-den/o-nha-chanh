@@ -70,23 +70,27 @@ export default function App() {
         </div>
       </header>
 
-      {/* WIDGET PLAYLIST CHILL BÊN PHẢI */}
-      <div className="fixed bottom-6 right-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-3 rounded-3xl shadow-2xl border-2 border-[#FDE047] flex flex-col gap-2.5 w-[240px]">
-        <div className="flex items-center gap-2 px-1">
-          <Music className="w-4 h-4 text-[#3C5C1D] dark:text-lime-300 animate-pulse" />
-          <span className="text-xs font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-widest">Playlist Chill</span>
+      {/* WIDGET PLAYLIST CHILL - DỜI SANG PHẢI, ĐÃ FIX LINK */}
+        <div className="fixed bottom-6 right-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-3 rounded-3xl shadow-2xl border-2 border-[#FDE047] flex flex-col gap-2.5 w-[240px]">
+          
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <Music className="w-4 h-4 text-[#3C5C1D] dark:text-lime-300 animate-pulse" />
+              <span className="text-xs font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-widest">Playlist Chill</span>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-yellow-200/60 bg-black/5 shadow-inner">
+            <iframe 
+              width="216" 
+              height="120" 
+              src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIaha7S-_pnCqtvwFElaxPPaV1&autoplay=1" 
+              title="Playlist Chill" 
+              className="border-0 w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-yellow-200/60 bg-black/5 shadow-inner">
-          <iframe 
-            width="216" 
-            height="120" 
-            src="https://www.youtube.com/playlist?list=PLt3H1oOlIaha7S-_pnCqtvwFElaxPPaV1&jct=BSBRHcOES5nwWaVq1RgO5g&autoplay=1" 
-            title="Playlist Chill" 
-            className="border-0 w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
-        </div>
-      </div>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         {view.type === 'list' && (
