@@ -122,11 +122,11 @@ export default function Dashboard({ characters, onCreate, onEdit }: DashboardPro
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map(char => (
             <button 
-              key={char.id}
-              onClick={() => setViewingCharId(char.id)}
-              className="group flex flex-col text-left bg-[#fdfcf8] dark:bg-[#1a201c] rounded-[2rem] p-4 border border-lime-50 dark:border-lime-900/40 shadow-md hover:shadow-xl hover:border-lime-200 dark:hover:border-lime-700 transition-all duration-300 hover:-translate-y-1.5"
-            >
-              <div className="aspect-square w-full rounded-3xl bg-stone-50 dark:bg-stone-800/50 mb-5 overflow-hidden relative border border-stone-100/50 dark:border-stone-700/50">
+  key={char.id}
+  onClick={() => setViewingCharId(char.id)}
+  className="group flex flex-col text-left bg-[#FFF9C4] rounded-[2rem] p-4 border-2 border-[#FDE047] shadow-md hover:shadow-xl hover:border-[#EAB308] hover:shadow-[#FDE047]/50 transition-all duration-300 hover:-translate-y-1.5"
+>
+              <div className="aspect-square w-full rounded-3xl bg-white/70 mb-5 overflow-hidden relative border border-yellow-200">
                 {char.portrait ? (
                   <img src={char.portrait} alt={char.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 ) : (
@@ -137,9 +137,9 @@ export default function Dashboard({ characters, onCreate, onEdit }: DashboardPro
               </div>
               
               <div className="px-3 pb-2">
-                <h3 className="font-serif font-bold text-xl text-stone-800 dark:text-stone-100 mb-3 group-hover:text-lime-700 dark:group-hover:text-lime-400 transition-colors line-clamp-1">
-                  {char.name}
-                </h3>
+                <h3 className="font-serif font-bold text-xl text-[#3C5C1D] mb-3 group-hover:text-lime-600 transition-colors line-clamp-1">
+  {char.name}
+</h3>
                 
                 <div className="flex flex-wrap gap-2">
                   {[...char.tags, ...char.traits].slice(0, 3).map(tag => (
