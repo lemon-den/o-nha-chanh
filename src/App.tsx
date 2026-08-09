@@ -83,10 +83,23 @@ export default function App() {
         </div>
       </header>
 
-      <div className="fixed bottom-6 left-6 z-40">
-        <audio controls loop className="h-10 w-48 shadow-lg rounded-full opacity-60 hover:opacity-100 transition-opacity">
-          <source src="https://www.soundhelix.com/architectureplay/SoundHelix-Song-1.mp3" type="audio/mpeg" />
-        </audio>
+      {/* Widget Nhạc Playlist YouTube thu nhỏ xinh xắn */}
+      <div className="fixed bottom-6 left-6 z-40 bg-white/80 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-yellow-200 flex items-center gap-2 group">
+        <div className="w-8 h-8 rounded-full bg-[#fde047] flex items-center justify-center text-[#3C5C1D] animate-spin-slow">
+          🎵
+        </div>
+        <div className="text-xs font-bold text-[#3C5C1D] hidden group-hover:block transition-all">
+          Chill Music ON
+        </div>
+        {/* Nhúng iframe ẩn/thu nhỏ playlist YouTube */}
+        <iframe 
+          width="150" 
+          height="35" 
+          src="https://youtube.com/playlist?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&si=V6Mout1jFSL8riUA&autoplay=1&loop=1" 
+          title="Music" 
+          className="rounded-lg opacity-80 hover:opacity-100 transition-opacity"
+          allow="autoplay"
+        />
       </div>
       
       <a href="https://forms.gle/LINK_CUA_BA" target="_blank" rel="noreferrer" className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-[#fde047] text-[#3C5C1D] px-5 py-3 rounded-full font-bold shadow-[0_8px_20px_rgba(202,138,4,0.3)] hover:scale-105 transition-transform">
