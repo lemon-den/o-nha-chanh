@@ -32,18 +32,15 @@ export default function App() {
       {/* Navigation Bar - Đã dọn sạch màu tối và đổi thành Vàng Kem Bơ */}
       <header className="border-b-2 border-[#FDE047] bg-[#FFF9C4]/95 backdrop-blur-md sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          
-          <button 
-  onClick={() => setView({ type: 'list' })}
-  className="flex items-center gap-3 hover:opacity-70 transition-opacity"
->
-  <div className="bg-[#fde047] p-2.5 rounded-full shadow-sm border border-yellow-300">
-    <Citrus className="w-6 h-6 text-[#3C5C1D]" />
-  </div>
-  <span className="font-script font-bold text-3xl tracking-tight text-[#3C5C1D] hidden sm:inline-block drop-shadow-sm">
-    Ổ Roleplay nhà Chanh
-  </span>
-</button>
+
+          <div className="flex items-center gap-3 !cursor-default">
+            <div className="bg-[#fde047] p-2.5 rounded-full shadow-sm border border-yellow-300 pointer-events-none">
+              <Citrus className="w-6 h-6 text-[#3C5C1D]" />
+            </div>
+            <span className="font-script font-bold text-3xl tracking-tight text-[#3C5C1D] hidden sm:inline-block drop-shadow-sm pointer-events-none">
+              Ổ Roleplay nhà Chanh
+            </span>
+          </div>
           
           <button
             onClick={() => setView({ type: 'landing' })}
