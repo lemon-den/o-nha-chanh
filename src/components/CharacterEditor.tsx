@@ -112,6 +112,20 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
               <input type="url" value={ggAiLink} onChange={(e) => setGgAiLink(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white/70 dark:bg-black/30 focus:outline-none focus:border-[#3C5C1D] dark:focus:border-lime-400 text-sm text-[#3C5C1D] dark:text-lime-100 shadow-inner" placeholder="https://aistudio.google.com/..." />
             </div>
 
+            {/* LINK GOOGLE AI STUDIO THỨ HAI */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-[#3C5C1D] dark:text-lime-300">
+              Google AI Studio Link 2 (Type 2)
+            </label>
+            <input 
+              type="text" 
+              name="googleAiLink2" // Đổi tên biến này cho link thứ 2
+              placeholder="https://aistudio.google.com/..."
+              // defaultValue={character?.googleAiLink2 || ''} 
+              className="w-full px-4 py-2.5 rounded-xl border-2 border-yellow-200 dark:border-lime-900 bg-white/50 dark:bg-black/40 focus:outline-none focus:border-[#3C5C1D] dark:focus:border-lime-500 transition-all text-sm"
+            />
+          </div>
+
             {/* HỆ THỐNG CÀI PASS */}
             <div className="bg-[#E5EEDF] dark:bg-lime-900/30 p-4 rounded-xl border border-[#3C5C1D]/20 dark:border-lime-800">
               <div className="flex items-center justify-between mb-3">
