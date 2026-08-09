@@ -39,7 +39,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
 
   const handleSendFeedback = async () => {
     if (content.length < 3) {
-      alert("Feedback ngắn quá! Viết ít nhất 3 ký tự nha Chủ Ổ ơi.");
+      alert("Feedback ngắn quá! Viết ít nhất 3 ký tự nha bạn ơi.");
       return;
     }
     try {
@@ -141,7 +141,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
               onClick={() => setActiveTab('feedback')}
               className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm relative ${activeTab === 'feedback' ? 'bg-[#3C5C1D] text-white scale-105' : 'bg-white/60 text-[#3C5C1D] hover:bg-white'}`}
             >
-              <MessageSquare className="w-4 h-4" /> Góc Góp Ý 
+              <MessageSquare className="w-4 h-4" /> Góc Feedback 
               <span className="bg-[#FDE047] text-[#3C5C1D] px-2 py-0.5 rounded-full text-xs font-bold ml-1">
                 {feedbacks.length}
               </span>
