@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { Character } from '../types';
-import { User, Plus } from 'lucide-react';
+import { Plus, Search, Sparkles } from 'lucide-react';
+import CharacterCard from './CharacterCard';
 import CharacterModal from './CharacterModal';
 
 interface DashboardProps {
@@ -12,8 +13,10 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDark }: DashboardProps) {
-  // Khởi tạo trạng thái Chủ Ổ (nhớ luôn kể cả khi f5 tải lại trang)
-  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('bossChanh') === 'true');
+  const [selectedTag, setSelectedTag] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  const [showAllTags, setShowAllTags] = useState(false);
 
   useEffect(() => {
     let sequence = '';
