@@ -4,7 +4,7 @@ import { useCharacters } from './hooks/useCharacters';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import CharacterEditor from './components/CharacterEditor';
-import { Citrus, ArrowLeft, MessageSquareHeart, Moon, Sun } from 'lucide-react';
+import { Citrus, ArrowLeft, Moon, Sun, Music } from 'lucide-react';
 
 export default function App() {
   const { characters, addCharacter, updateCharacter } = useCharacters();
@@ -51,10 +51,8 @@ export default function App() {
   }
 
   return (
-    // NỀN TRANG WEB: Ép tự động đổi giữa Đen Xanh và Vàng Chanh theo nút bấm
     <div className={`min-h-screen transition-colors duration-500 selection:bg-lime-200 ${isDark ? 'bg-[#111612] text-stone-200' : 'bg-custom-pattern text-stone-800'}`}>
       
-      {/* THANH MENU: Ép tự động đổi màu */}
       <header className={`border-b-2 backdrop-blur-md sticky top-0 z-20 shadow-sm transition-colors ${isDark ? 'border-lime-900 bg-[#1a241a]/95' : 'border-[#FDE047] bg-[#FFF9C4]/95'}`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
@@ -68,7 +66,6 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-3">
-            {/* NÚT BẬT TẮT SÁNG TỐI */}
             <button onClick={() => setIsDark(!isDark)} className={`p-2.5 rounded-full transition-all shadow-sm border ${isDark ? 'bg-black/40 hover:bg-black/60 border-lime-800' : 'bg-white/60 hover:bg-white border-yellow-200'}`}>
               {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-[#3C5C1D]" />}
             </button>
@@ -83,35 +80,20 @@ export default function App() {
         </div>
       </header>
 
-      {/* Widget Nhạc Playlist YouTube thu nhỏ xinh xắn */}
-      <div className="fixed bottom-6 left-6 z-40 bg-white/80 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-yellow-200 flex items-center gap-2 group">
-        <div className="w-8 h-8 rounded-full bg-[#fde047] flex items-center justify-center text-[#3C5C1D] animate-spin-slow">
-          🎵
+      {/* WIDGET NHẠC THU GỌN (CHỈ HIỆN NÚT/ICON CHILL) */}
+      <div className="fixed bottom-6 left-6 z-40 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-yellow-200 flex items-center gap-3">
+        <div className="w-7 h-7 rounded-full bg-[#fde047] flex items-center justify-center text-[#3C5C1D] shadow-sm animate-pulse">
+          <Music className="w-3.5 h-3.5" />
         </div>
-        <div className="text-xs font-bold text-[#3C5C1D] hidden group-hover:block transition-all">
-          Chill Music ON
-        </div>
-        {/* Nhúng iframe ẩn/thu nhỏ playlist YouTube */}
-        <iframe 
-          width="150" 
-          height="35" 
-          src="https://youtube.com/playlist?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&si=V6Mout1jFSL8riUA&autoplay=1&loop=1" 
-          title="Music" 
-          className="rounded-lg opacity-80 hover:opacity-100 transition-opacity"
-          allow="autoplay"
-        />
+        <span className="text-xs font-bold text-[#3C5C1D] tracking-wide">Playlist Lofi Chill</span>
       </div>
-      
-      <a href="https://forms.gle/LINK_CUA_BA" target="_blank" rel="noreferrer" className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-[#fde047] text-[#3C5C1D] px-5 py-3 rounded-full font-bold shadow-[0_8px_20px_rgba(202,138,4,0.3)] hover:scale-105 transition-transform">
-        <MessageSquareHeart className="w-5 h-5" /> Góp ý cho Ổ
-      </a>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         {view.type === 'list' && (
           <Dashboard 
             characters={characters} 
             isAdmin={isAdmin}
-            isDark={isDark} // Truyền lệnh đổi màu xuống Dashboard
+            isDark={isDark}
             onCreate={() => setView({ type: 'create' })}
             onEdit={(id) => setView({ type: 'edit', characterId: id })}
           />
