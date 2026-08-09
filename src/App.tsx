@@ -80,21 +80,19 @@ export default function App() {
         </div>
       </header>
 
-{/* WIDGET NHẠC YOUTUBE - CÓ TIÊU ĐỀ BÀI HÁT */}
-      <div className={`fixed bottom-6 left-6 z-40 p-3 rounded-3xl shadow-2xl border-2 flex items-center gap-3 transition-colors ${isDark ? 'bg-[#1a241a] border-lime-800' : 'bg-[#FFF9C4] border-[#FDE047]'}`}>
-        
-        {/* Icon nhạc */}
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm shrink-0 ${isDark ? 'bg-lime-900 text-lime-300' : 'bg-[#fde047] text-[#3C5C1D]'}`}>
-          <Music className="w-5 h-5 animate-pulse" />
+{/* WIDGET NHẠC YOUTUBE - GỌN GÀNG, ĐỦ NÚT ĐIỀU KHIỂN */}
+      <div className="fixed bottom-6 left-6 z-40 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-2 rounded-2xl shadow-xl border-2 border-[#FDE047] flex items-center gap-2 group">
+        <div className="w-8 h-8 rounded-full bg-[#fde047] flex items-center justify-center text-[#3C5C1D] shadow-sm shrink-0">
+          <Music className="w-4 h-4 animate-pulse" />
         </div>
         
-        {/* Khung YouTube Player: Để rộng 300px để nó hiện tên bài hát */}
-        <div className="overflow-hidden rounded-2xl border border-yellow-200/50 bg-black/10">
+        {/* Khung chứa YouTube Player được bo góc mượt mà, giữ nguyên nút điều khiển */}
+        <div className="overflow-hidden rounded-xl border border-yellow-200 bg-black/5 shadow-inner flex items-center">
           <iframe 
-            width="300" 
-            height="50" 
+            width="220" 
+            height="40" 
             src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX" 
-            title="Music" 
+            title="YouTube playlist player" 
             className="opacity-95 hover:opacity-100 transition-opacity border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
