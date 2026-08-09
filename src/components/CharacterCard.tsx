@@ -10,9 +10,9 @@ export default function CharacterCard({ character, onClick }: CharacterCardProps
   return (
     <div 
       onClick={onClick}
-      className="group bg-white/80 dark:bg-black/40 rounded-[2rem] p-4 shadow-sm hover:shadow-xl transition-all duration-300 border-2 border-yellow-200 dark:border-lime-900 cursor-pointer hover:-translate-y-1 flex flex-col"
+      className="group bg-white rounded-[2rem] p-4 shadow-sm hover:shadow-xl transition-all duration-300 border-2 border-yellow-200 cursor-pointer hover:-translate-y-1 flex flex-col"
     >
-      <div className="aspect-[3/4] w-full rounded-2xl bg-stone-100 dark:bg-stone-900 overflow-hidden relative mb-4 shadow-inner">
+      <div className="aspect-[3/4] w-full rounded-2xl bg-stone-100 overflow-hidden relative mb-4 shadow-inner">
         {character.portrait ? (
           <img src={character.portrait} alt={character.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
@@ -27,19 +27,19 @@ export default function CharacterCard({ character, onClick }: CharacterCardProps
         )}
       </div>
 
-      <h3 className="font-serif font-bold text-xl text-[#3C5C1D] dark:text-lime-200 mb-2 truncate">
+      <h3 className="font-serif font-bold text-xl text-[#3C5C1D] mb-2 truncate">
         {character.name}
       </h3>
 
       <div className="flex flex-wrap gap-1.5 mb-4 flex-1">
         {character.tags.slice(0, 2).map(tag => (
-          <span key={tag} className="px-2.5 py-0.5 rounded-full bg-[#E5EEDF] dark:bg-lime-900/60 text-[#3C5C1D] dark:text-lime-200 text-xs font-bold">
+          <span key={tag} className="px-2.5 py-0.5 rounded-full bg-[#E5EEDF] text-[#3C5C1D] text-xs font-bold">
             {tag}
           </span>
         ))}
       </div>
 
-      <div className="flex items-center justify-between text-[11px] font-bold text-stone-400 pt-2 border-t border-yellow-100 dark:border-lime-900/40">
+      <div className="flex items-center justify-between text-[11px] font-bold text-stone-400 pt-2 border-t border-yellow-100">
         <span className="flex items-center gap-1"><Eye className="w-3 h-3"/> {character.views || 0}</span>
         <span className="flex items-center gap-1"><MousePointerClick className="w-3 h-3"/> {character.clicks || 0}</span>
       </div>
