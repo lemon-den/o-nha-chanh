@@ -92,7 +92,7 @@ export default function App() {
             width="220" 
             height="40" 
             src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX" 
-            title="YouTube playlist player" 
+            title="Music" 
             className="opacity-95 hover:opacity-100 transition-opacity border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
