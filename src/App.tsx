@@ -34,16 +34,16 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
           <button 
-            onClick={() => setView({ type: 'list' })}
-            className="flex items-center gap-3 hover:opacity-70 transition-opacity"
-          >
-            <div className="bg-[#fde047] p-2.5 rounded-full shadow-sm border border-yellow-300">
-              <Citrus className="w-6 h-6 text-[#3C5C1D]" />
-            </div>
-            <span className="font-script font-bold text-3xl tracking-tight text-[#3C5C1D] hidden sm:inline-block drop-shadow-sm">
-              Ổ Roleplay nhà Chanh
-            </span>
-          </button>
+  onClick={() => setView({ type: 'list' })}
+  className="flex items-center gap-3 hover:opacity-70 transition-opacity"
+>
+  <div className="bg-[#fde047] p-2.5 rounded-full shadow-sm border border-yellow-300">
+    <Citrus className="w-6 h-6 text-[#3C5C1D]" />
+  </div>
+  <span className="font-script font-bold text-3xl tracking-tight text-[#3C5C1D] hidden sm:inline-block drop-shadow-sm">
+    Ổ Roleplay nhà Chanh
+  </span>
+</button>
           
           <button
             onClick={() => setView({ type: 'landing' })}
