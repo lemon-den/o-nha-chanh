@@ -8,6 +8,8 @@ export interface Character {
   ggaiLink?: string;
   createdAt: number;
   updatedAt: number;
+  isLocked?: boolean;     // Có khóa pass hay không?
+  password?: string;      // Mật khẩu là gì?
 }
 
 export type ViewState = 
