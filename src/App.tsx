@@ -11,26 +11,29 @@ export default function App() {
   const [view, setView] = useState<ViewState>({ type: 'landing' });
   const [isDark, setIsDark] = useState(false);
   const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('bossChanh') === 'true');
+  
+  // Biến đếm số lần click để mở khóa admin bí mật
+  const [clickCount, setClickCount] = useState(0);
 
-  useEffect(() => {
-    let sequence = '';
-    const secretCode = 'adminlemonden';
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      sequence += e.key.toLowerCase();
-      sequence = sequence.slice(-secretCode.length);
-      if (sequence === secretCode) {
-        setIsAdmin((prev) => {
-          const newState = !prev;
-          localStorage.setItem('bossChanh', String(newState));
-          return newState;
+  const handleLogoClick = () => {
+    setClickCount((prev) => {
+      const next = prev + 1;
+      if (next >= 5) {
+        setIsAdmin((a) => {
+          const newAdmin = !a;
+          localStorage.setItem('bossChanh', String(newAdmin));
+          if (newAdmin) {
+            alert("✨ Đã kích hoạt quyền Chủ Ổ! Khóa Edit đã mở.");
+          } else {
+            alert("🔒 Đã khóa Ổ! Giấu nút thành công.");
+          }
+          return newAdmin;
         });
-        sequence = '';
+        return 0;
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+      return next;
+    });
+  };
 
   if (view.type === 'landing') {
     return <LandingPage onEnter={() => setView({ type: 'list' })} isDark={isDark} toggleDark={() => setIsDark(!isDark)} />;
@@ -41,11 +44,19 @@ export default function App() {
       
       <header className={`border-b-2 backdrop-blur-md sticky top-0 z-20 shadow-sm transition-colors ${isDark ? 'border-lime-900 bg-[#1a241a]/95' : 'border-[#FDE047] bg-[#FFF9C4]/95'}`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-full shadow-sm border ${isDark ? 'bg-lime-900 border-lime-700' : 'bg-[#fde047] border-yellow-300'}`}>
+          
+          {/* BẤM VÀO ĐÂY 5 LẦN LIÊN TỤC ĐỂ MỞ/KHÓA QUYỀN CHỦ Ổ */}
+          <div 
+            onClick={handleLogoClick}
+            className="flex items-center gap-3 cursor-pointer select-none group"
+            title="Bấm 5 lần liên tiếp ở đây để bật/tắt quyền Chủ Ổ"
+          >
+            <div className={`p-2.5 rounded-full shadow-sm border transition-transform group-hover:scale-105 ${isDark ? 'bg-lime-900 border-lime-700' : 'bg-[#fde047] border-yellow-300'}`}>
               <Citrus className={`w-6 h-6 ${isDark ? 'text-lime-300' : 'text-[#3C5C1D]'}`} />
             </div>
-            <span className={`font-script font-bold text-3xl tracking-tight hidden sm:inline-block ${isDark ? 'text-lime-100' : 'text-[#3C5C1D]'}`}>Ổ Roleplay nhà Chanh</span>
+            <span className={`font-script font-bold text-3xl tracking-tight hidden sm:inline-block drop-shadow-sm ${isDark ? 'text-lime-100' : 'text-[#3C5C1D]'}`}>
+              Ổ Roleplay nhà Chanh
+            </span>
           </div>
           
           <div className="flex items-center gap-3">
@@ -59,7 +70,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* WIDGET PLAYLIST CHILL - DỜI SANG PHẢI, DÙNG YOUTUBE NATIVE */}
+      {/* WIDGET PLAYLIST CHILL BÊN PHẢI */}
       <div className="fixed bottom-6 right-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-3 rounded-3xl shadow-2xl border-2 border-[#FDE047] flex flex-col gap-2.5 w-[240px]">
         <div className="flex items-center gap-2 px-1">
           <Music className="w-4 h-4 text-[#3C5C1D] dark:text-lime-300 animate-pulse" />
