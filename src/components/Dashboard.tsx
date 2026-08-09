@@ -46,6 +46,7 @@ export default function Dashboard({ characters, onCreate, onEdit }: DashboardPro
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
   const [selectedTag, setSelectedTag] = useState<string>('All');
+  const [showAllTags, setShowAllTags] = useState(false);
   const [viewingCharId, setViewingCharId] = useState<string | null>(null);
 
   const allTags = useMemo(() => {
@@ -89,19 +90,41 @@ export default function Dashboard({ characters, onCreate, onEdit }: DashboardPro
 
       {/* Tags System */}
       <div className="flex flex-wrap gap-3 mb-6">
-        {allTags.map(tag => (
+        
+        {/* Chỉ hiển thị 8 tag đầu tiên, nếu bấm xem thêm thì mới show hết */}
+        {(showAllTags ? allTags : allTags.slice(0, 8)).map(tag => (
           <button
             key={tag}
             onClick={() => setSelectedTag(tag)}
             className={`px-5 py-2.5 rounded-full text-sm transition-all shadow-sm ${
               selectedTag === tag 
-                ? 'bg-lime-800 text-white font-bold dark:bg-lime-300 dark:text-lime-950 scale-105' 
-                : 'bg-white/80 dark:bg-black/40 text-stone-600 dark:text-stone-300 hover:bg-lime-50 dark:hover:bg-lime-900/50 font-medium backdrop-blur-sm'
+                ? 'bg-[#3C5C1D] text-white font-bold scale-105' 
+                : 'bg-white/80 text-[#3C5C1D] border border-[#3C5C1D]/20 hover:bg-[#FDE047] font-medium backdrop-blur-sm'
             }`}
           >
             {tag}
           </button>
         ))}
+
+        {/* Nút Xem thêm (Chỉ hiện khi chưa mở rộng và tổng số tag lớn hơn 8) */}
+        {!showAllTags && allTags.length > 8 && (
+          <button
+            onClick={() => setShowAllTags(true)}
+            className="px-5 py-2.5 rounded-full text-sm font-bold bg-[#FFF9C4] text-[#3C5C1D] hover:bg-[#FDE047] transition-all shadow-sm border border-[#FDE047] border-dashed"
+          >
+            +{allTags.length - 8} tags nữa...
+          </button>
+        )}
+
+        {/* Nút Thu gọn (Chỉ hiện khi đang mở rộng) */}
+        {showAllTags && allTags.length > 8 && (
+          <button
+            onClick={() => setShowAllTags(false)}
+            className="px-5 py-2.5 rounded-full text-sm font-bold bg-white/60 text-[#3C5C1D] hover:bg-white transition-all shadow-sm border border-[#3C5C1D]/20"
+          >
+            Thu gọn lại 🍋
+          </button>
+        )}
       </div>
 
       {/* Counter */}
