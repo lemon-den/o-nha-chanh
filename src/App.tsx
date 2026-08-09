@@ -11,9 +11,10 @@ export default function App() {
   const { characters, addCharacter, updateCharacter } = useCharacters();
   const [view, setView] = useState<ViewState>({ type: 'landing' });
   const [isDark, setIsDark] = useState(false);
-  const playerRef = useRef<any>(null);
-  const [playing, setPlaying] = useState(true);
   const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('bossChanh') === 'true');
+  
+  const playerRef = useRef<any>(null);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     let sequence = '';
@@ -83,48 +84,53 @@ export default function App() {
         </div>
       </header>
 
-import { useState, useRef } from 'react';
-import ReactPlayer from 'react-player/youtube';
-import { SkipBack, SkipForward, Play, Pause, Music } from 'lucide-react';
+      {/* WIDGET NHẠC CUSTOM 3 NÚT (LÙI - PLAY/PAUSE - SKIP) */}
+      <div className="fixed bottom-6 left-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-4 rounded-3xl shadow-2xl border-2 border-[#FDE047] flex flex-col gap-3 w-[240px]">
+        
+        <div className="flex items-center gap-2 px-1">
+          <Music className="w-4 h-4 text-[#3C5C1D] dark:text-lime-300 animate-pulse" />
+          <span className="text-xs font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-widest">Playlist Chill</span>
+        </div>
 
-// ... (các đoạn code khác giữ nguyên)
+        {/* Trình phát nhạc ẩn */}
+        <ReactPlayer 
+          ref={playerRef}
+          url="https://www.youtube.com/playlist?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX"
+          width="0px"
+          height="0px"
+          playing={playing}
+          loop={true}
+          volume={0.5}
+        />
 
-// Đặt cái này ở trong phần return của App.tsx, chỗ bà muốn đặt widget nhạc
-<div className="fixed bottom-6 left-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-4 rounded-3xl shadow-2xl border-2 border-[#FDE047] flex flex-col gap-3 w-[260px]">
-  
-  {/* Header nhạc */}
-  <div className="flex items-center gap-2">
-    <Music className="w-4 h-4 text-[#3C5C1D] dark:text-lime-300" />
-    <span className="text-xs font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-widest">Playlist Chill</span>
-  </div>
+        {/* Giao diện 3 nút bấm điều khiển */}
+        <div className="flex items-center justify-between bg-black/5 dark:bg-white/5 p-2 rounded-2xl">
+          <button 
+            onClick={() => playerRef.current?.getInternalPlayer()?.previousVideo()} 
+            className="p-2.5 hover:bg-[#FDE047] dark:hover:bg-lime-900 rounded-full transition-all text-[#3C5C1D] dark:text-lime-200 cursor-pointer"
+            title="Bài trước"
+          >
+            <SkipBack className="w-4 h-4" />
+          </button>
+          
+          <button 
+            onClick={() => setPlaying(!playing)} 
+            className="p-3 bg-[#3C5C1D] hover:bg-lime-800 text-white rounded-full shadow-md hover:scale-105 transition-all cursor-pointer"
+            title={playing ? "Tạm dừng" : "Phát nhạc"}
+          >
+            {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </button>
+          
+          <button 
+            onClick={() => playerRef.current?.getInternalPlayer()?.nextVideo()} 
+            className="p-2.5 hover:bg-[#FDE047] dark:hover:bg-lime-900 rounded-full transition-all text-[#3C5C1D] dark:text-lime-200 cursor-pointer"
+            title="Bài tiếp theo"
+          >
+            <SkipForward className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
 
-  {/* Nơi nhúng trình phát nhạc (Ẩn khung hình) */}
-  <ReactPlayer 
-    ref={playerRef}
-    url="https://www.youtube.com/playlist?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX"
-    width="0px"
-    height="0px"
-    playing={true} // Tự phát (sẽ bị trình duyệt chặn cho đến khi click)
-    loop={true}
-    config={{ youtube: { playerVars: { autoplay: 1 } } }}
-  />
-
-  {/* GIAO DIỆN 3 NÚT BẤM CỦA BÀ */}
-  <div className="flex items-center justify-between bg-black/5 dark:bg-white/5 p-2 rounded-xl">
-    <button onClick={() => playerRef.current?.getInternalPlayer().previousVideo()} className="p-2 hover:bg-[#FDE047] rounded-full transition-all text-[#3C5C1D] dark:text-lime-200">
-      <SkipBack className="w-5 h-5" />
-    </button>
-    
-    <button onClick={() => setPlaying(!playing)} className="p-3 bg-[#3C5C1D] text-white rounded-full shadow-md hover:scale-105 transition-all">
-      {playing ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-    </button>
-    
-    <button onClick={() => playerRef.current?.getInternalPlayer().nextVideo()} className="p-2 hover:bg-[#FDE047] rounded-full transition-all text-[#3C5C1D] dark:text-lime-200">
-      <SkipForward className="w-5 h-5" />
-    </button>
-  </div>
-</div>
-      
       <main className="max-w-7xl mx-auto px-6 py-12">
         {view.type === 'list' && (
           <Dashboard 
