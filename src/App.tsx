@@ -80,23 +80,24 @@ export default function App() {
         </div>
       </header>
 
-{/* WIDGET NHẠC CHILL - ÉP KIỂU THANH ĐIỀU KHIỂN SIÊU GỌN */}
-      <div className="fixed bottom-6 left-6 z-40 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-1.5 rounded-full shadow-xl border-2 border-[#FDE047] flex items-center gap-2">
+{/* WIDGET NHẠC MUSIC CARD - ĐỦ KHÔNG GIAN ĐỂ YOUTUBE HOẠT ĐỘNG */}
+      <div className="fixed bottom-6 left-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-2 rounded-2xl shadow-xl border-2 border-[#FDE047] flex flex-col gap-2 transition-colors">
         
-        {/* Icon nhạc */}
-        <div className="w-8 h-8 rounded-full bg-[#fde047] flex items-center justify-center text-[#3C5C1D] shrink-0">
-          <Music className="w-4 h-4 animate-pulse" />
+        {/* Tiêu đề nhỏ xíu ở trên */}
+        <div className="flex items-center gap-2 px-1">
+          <Music className="w-3.5 h-3.5 text-[#3C5C1D] dark:text-lime-300" />
+          <span className="text-[10px] font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-wider">Playlist Chill</span>
         </div>
-        
-        {/* Khung này tui ép height=40px, YouTube sẽ tự động giấu hình ảnh chỉ chừa lại nút bấm */}
-        <div className="overflow-hidden rounded-lg h-[40px] w-[200px] flex items-center justify-center bg-black/5">
+
+        {/* Khung YouTube Player: Tăng height lên 160px để YouTube nó hiện đủ nút bấm */}
+        <div className="overflow-hidden rounded-xl border border-yellow-200 bg-black/5">
           <iframe 
             width="200" 
-            height="40" 
-            src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&modestbranding=1&rel=0&controls=1" 
+            height="160" 
+            src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&rel=0&modestbranding=1" 
             title="Music" 
-            className="border-0 scale-[1.05]"
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+            className="border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           />
         </div>
       </div>
