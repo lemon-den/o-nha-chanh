@@ -108,9 +108,9 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
                 {character.name}
               </h2>
               <div className="flex flex-col items-end text-[11px] font-bold text-[#3C5C1D]/60 dark:text-lime-200/60">
-                <span className="flex items-center gap-1"><Eye className="w-3 h-3"/> {character.views || Math.floor(Math.random() * 500) + 50} views</span>
-                <span className="flex items-center gap-1"><MousePointerClick className="w-3 h-3"/> {character.clicks || Math.floor(Math.random() * 200)} clicks</span>
-              </div>
+  <span className="flex items-center gap-1"><Eye className="w-3 h-3"/> {character.views || 0} views</span>
+  <span className="flex items-center gap-1"><MousePointerClick className="w-3 h-3"/> {character.clicks || 0} clicks</span>
+</div>
             </div>
             
             <div className="flex flex-wrap gap-2 mb-8 pb-8 border-b-2 border-[#FDE047] dark:border-lime-900">
