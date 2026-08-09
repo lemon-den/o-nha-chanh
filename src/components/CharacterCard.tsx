@@ -31,18 +31,22 @@ export default function CharacterCard({ character, onClick }: CharacterCardProps
         {character.name}
       </h3>
 
-      <div className="flex flex-wrap gap-1.5 mb-4 flex-1">
-        {/* Chỉ hiện 3 tag đầu tiên */}
-        {character.tags.slice(0, 3).map(tag => (
-          <span key={tag} className="px-2.5 py-0.5 rounded-full bg-[#E5EEDF] dark:bg-lime-900/60 text-[#3C5C1D] dark:text-lime-200 text-xs font-bold">
+      {/* Bọc trong một cái div flex gọn gàng, không ép kích thước */}
+      <div className="flex flex-wrap gap-1.5 mb-4 flex-1 items-center">
+        {/* Hiện 3 tag đầu */}
+        {character.tags.slice(0, 3).map((tag) => (
+          <span 
+            key={tag} 
+            className="px-2 py-1 rounded-md bg-[#E5EEDF] dark:bg-lime-900/40 text-[#3C5C1D] dark:text-lime-200 text-[10px] font-bold whitespace-nowrap"
+          >
             {tag}
           </span>
         ))}
         
-        {/* Nếu nhiều hơn 3 tag thì hiện +... */}
+        {/* Hiện số tag còn lại ví dụ: +2, +5 */}
         {character.tags.length > 3 && (
-          <span className="px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-500 text-xs font-bold">
-            +...
+          <span className="px-2 py-1 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 text-[10px] font-bold whitespace-nowrap">
+            +{character.tags.length - 3}
           </span>
         )}
       </div>
