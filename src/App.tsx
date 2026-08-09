@@ -10,6 +10,8 @@ export default function App() {
   const { characters, addCharacter, updateCharacter } = useCharacters();
   const [view, setView] = useState<ViewState>({ type: 'landing' });
   const [isDark, setIsDark] = useState(false);
+  const playerRef = useRef<any>(null);
+  const [playing, setPlaying] = useState(true);
   const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('bossChanh') === 'true');
 
   useEffect(() => {
