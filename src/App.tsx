@@ -5,6 +5,7 @@ import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import CharacterEditor from './components/CharacterEditor';
 import { Citrus, ArrowLeft, Moon, Sun, Music } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function App() {
   const { characters, addCharacter, updateCharacter } = useCharacters();
