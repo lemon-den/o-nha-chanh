@@ -86,7 +86,7 @@ export default function App() {
         {/* Tiêu đề nhỏ xíu ở trên */}
         <div className="flex items-center gap-2 px-1">
           <Music className="w-3.5 h-3.5 text-[#3C5C1D] dark:text-lime-300" />
-          <span className="text-[10px] font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-wider">Playlist Chill</span>
+          <span className="text-[10px] font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-wider">Playlist</span>
         </div>
 
         {/* Khung YouTube Player: Tăng height lên 160px để YouTube nó hiện đủ nút bấm */}
