@@ -80,7 +80,7 @@ export default function App() {
           <iframe 
             width="216" 
             height="120" 
-            src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&autoplay=1" 
+            src="https://youtube.com/playlist?list=PLt3H1oOlIaha7S-_pnCqtvwFElaxPPaV1&si=JA_LMzzpmA2PPwYp&autoplay=1" 
             title="Playlist Chill" 
             className="border-0 w-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
