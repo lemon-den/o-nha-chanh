@@ -11,12 +11,9 @@ export default function App() {
   const [view, setView] = useState<ViewState>({ type: 'landing' });
   const [isDark, setIsDark] = useState(false);
 
+  // Khóa vĩnh viễn Dark Mode để web luôn giữ màu vàng chanh pastel mộng mơ
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.remove('dark');
   }, [isDark]);
 
   if (view.type === 'landing') {
@@ -30,27 +27,27 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-custom-pattern text-stone-800 dark:text-stone-200 transition-colors duration-500 selection:bg-lime-200 dark:selection:bg-lime-800">
+    <div className="min-h-screen bg-custom-pattern text-stone-800 transition-colors duration-500 selection:bg-lime-200">
       
-      {/* Navigation Bar */}
-      <header className="border-b border-lime-200/60 dark:border-lime-900/60 bg-[#fefce8]/80 dark:bg-[#1a241a]/80 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+      {/* Navigation Bar - Đã dọn sạch màu tối và đổi thành Vàng Kem Bơ */}
+      <header className="border-b-2 border-[#FDE047] bg-[#FFF9C4]/95 backdrop-blur-md sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
           <button 
             onClick={() => setView({ type: 'list' })}
             className="flex items-center gap-3 hover:opacity-70 transition-opacity"
           >
-            <div className="bg-[#fde047] dark:bg-yellow-600 p-2.5 rounded-full shadow-sm">
-              <Citrus className="w-6 h-6 text-yellow-950 dark:text-yellow-100" />
+            <div className="bg-[#fde047] p-2.5 rounded-full shadow-sm border border-yellow-300">
+              <Citrus className="w-6 h-6 text-[#3C5C1D]" />
             </div>
-            <span className="font-script font-bold text-3xl tracking-tight text-lime-900 dark:text-lime-100 hidden sm:inline-block">
+            <span className="font-script font-bold text-3xl tracking-tight text-[#3C5C1D] hidden sm:inline-block drop-shadow-sm">
               Ổ Roleplay nhà Chanh
             </span>
           </button>
           
           <button
             onClick={() => setView({ type: 'landing' })}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/60 dark:bg-black/30 hover:bg-white dark:hover:bg-black/50 text-stone-600 dark:text-stone-300 font-bold text-sm transition-all shadow-sm border border-lime-100/50 dark:border-lime-800/50"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white hover:bg-[#FDE047] text-[#3C5C1D] font-bold text-sm transition-all shadow-sm border-2 border-[#FDE047]"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Garden Gate
@@ -59,7 +56,8 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12 relative z-10">
+      {/* MAIN CONTAINER: Đã xóa chữ 'relative z-10' để bảng nhân vật (Modal) không bị đè */}
+      <main className="max-w-7xl mx-auto px-6 py-12">
         {view.type === 'list' && (
           <Dashboard 
             characters={characters} 
