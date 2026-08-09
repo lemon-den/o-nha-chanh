@@ -16,7 +16,7 @@ export default function App() {
 
   useEffect(() => {
     let sequence = '';
-    const secretCode = 'admin'; // Mật mã ẩn
+    const secretCode = 'adminlemonden'; // Đã đổi pass mới siêu bảo mật
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
