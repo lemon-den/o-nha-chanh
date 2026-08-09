@@ -85,7 +85,7 @@ export default function App() {
         <div className="w-7 h-7 rounded-full bg-[#fde047] flex items-center justify-center text-[#3C5C1D] shadow-sm animate-pulse shrink-0">
           <Music className="w-3.5 h-3.5" />
         </div>
-        <span className="text-xs font-bold text-[#3C5C1D] tracking-wide hidden sm:inline-block">Lofi Chill</span>
+        <span className="text-xs font-bold text-[#3C5C1D] tracking-wide hidden sm:inline-block">Music</span>
         
         {/* Khung iframe YouTube tích hợp playlist của bà */}
         <div className="overflow-hidden rounded-xl border border-yellow-100 h-[32px] w-[160px] sm:w-[180px] bg-black/5 flex items-center justify-center">
