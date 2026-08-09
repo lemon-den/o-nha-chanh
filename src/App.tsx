@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ViewState } from './types';
 import { useCharacters } from './hooks/useCharacters';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import CharacterEditor from './components/CharacterEditor';
-import { Citrus, ArrowLeft, Moon, Sun, Music } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { Citrus, ArrowLeft, Moon, Sun, Music, SkipBack, SkipForward, Play, Pause } from 'lucide-react';
+import ReactPlayer from 'react-player/youtube';
 
 export default function App() {
   const { characters, addCharacter, updateCharacter } = useCharacters();
