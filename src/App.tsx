@@ -80,27 +80,47 @@ export default function App() {
         </div>
       </header>
 
-{/* WIDGET NHẠC MUSIC CARD - ĐỦ KHÔNG GIAN ĐỂ YOUTUBE HOẠT ĐỘNG */}
-      <div className="fixed bottom-6 left-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-2 rounded-2xl shadow-xl border-2 border-[#FDE047] flex flex-col gap-2 transition-colors">
-        
-        {/* Tiêu đề nhỏ xíu ở trên */}
-        <div className="flex items-center gap-2 px-1">
-          <Music className="w-3.5 h-3.5 text-[#3C5C1D] dark:text-lime-300" />
-          <span className="text-[10px] font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-wider">Playlist</span>
-        </div>
+import { useState, useRef } from 'react';
+import ReactPlayer from 'react-player/youtube';
+import { SkipBack, SkipForward, Play, Pause, Music } from 'lucide-react';
 
-        {/* Khung YouTube Player: Tăng height lên 160px để YouTube nó hiện đủ nút bấm */}
-        <div className="overflow-hidden rounded-xl border border-yellow-200 bg-black/5">
-          <iframe 
-            width="200" 
-            height="160" 
-            src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&rel=0&modestbranding=1" 
-            title="Music" 
-            className="border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
-        </div>
-      </div>
+// ... (các đoạn code khác giữ nguyên)
+
+// Đặt cái này ở trong phần return của App.tsx, chỗ bà muốn đặt widget nhạc
+<div className="fixed bottom-6 left-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-4 rounded-3xl shadow-2xl border-2 border-[#FDE047] flex flex-col gap-3 w-[260px]">
+  
+  {/* Header nhạc */}
+  <div className="flex items-center gap-2">
+    <Music className="w-4 h-4 text-[#3C5C1D] dark:text-lime-300" />
+    <span className="text-xs font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-widest">Playlist Chill</span>
+  </div>
+
+  {/* Nơi nhúng trình phát nhạc (Ẩn khung hình) */}
+  <ReactPlayer 
+    ref={playerRef}
+    url="https://www.youtube.com/playlist?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX"
+    width="0px"
+    height="0px"
+    playing={true} // Tự phát (sẽ bị trình duyệt chặn cho đến khi click)
+    loop={true}
+    config={{ youtube: { playerVars: { autoplay: 1 } } }}
+  />
+
+  {/* GIAO DIỆN 3 NÚT BẤM CỦA BÀ */}
+  <div className="flex items-center justify-between bg-black/5 dark:bg-white/5 p-2 rounded-xl">
+    <button onClick={() => playerRef.current?.getInternalPlayer().previousVideo()} className="p-2 hover:bg-[#FDE047] rounded-full transition-all text-[#3C5C1D] dark:text-lime-200">
+      <SkipBack className="w-5 h-5" />
+    </button>
+    
+    <button onClick={() => setPlaying(!playing)} className="p-3 bg-[#3C5C1D] text-white rounded-full shadow-md hover:scale-105 transition-all">
+      {playing ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+    </button>
+    
+    <button onClick={() => playerRef.current?.getInternalPlayer().nextVideo()} className="p-2 hover:bg-[#FDE047] rounded-full transition-all text-[#3C5C1D] dark:text-lime-200">
+      <SkipForward className="w-5 h-5" />
+    </button>
+  </div>
+</div>
       
       <main className="max-w-7xl mx-auto px-6 py-12">
         {view.type === 'list' && (
