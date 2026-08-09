@@ -114,9 +114,7 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
 
             {/* LINK GOOGLE AI STUDIO THỨ HAI */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-[#3C5C1D] dark:text-lime-300">
-              Google AI Studio Link 2 (Type 2)
-            </label>
+            <label className="block text-sm font-bold text-[#3C5C1D] dark:text-lime-500 mb-1">Google AI Studio Link 2</label>
             <input 
               type="text" 
               name="googleAiLink2" // Đổi tên biến này cho link thứ 2
