@@ -80,12 +80,25 @@ export default function App() {
         </div>
       </header>
 
-      {/* WIDGET NHẠC THU GỌN (CHỈ HIỆN NÚT/ICON CHILL) */}
-      <div className="fixed bottom-6 left-6 z-40 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border border-yellow-200 flex items-center gap-3">
-        <div className="w-7 h-7 rounded-full bg-[#fde047] flex items-center justify-center text-[#3C5C1D] shadow-sm animate-pulse">
+      {/* WIDGET NHẠC PLAYLIST YOUTUBE THẬT & GỌN GÀNG */}
+      <div className="fixed bottom-6 left-6 z-40 bg-white/90 backdrop-blur-md px-3 py-2 rounded-2xl shadow-lg border border-yellow-200 flex items-center gap-2 group">
+        <div className="w-7 h-7 rounded-full bg-[#fde047] flex items-center justify-center text-[#3C5C1D] shadow-sm animate-pulse shrink-0">
           <Music className="w-3.5 h-3.5" />
         </div>
-        <span className="text-xs font-bold text-[#3C5C1D] tracking-wide">Playlist Lofi Chill</span>
+        <span className="text-xs font-bold text-[#3C5C1D] tracking-wide hidden sm:inline-block">Lofi Chill</span>
+        
+        {/* Khung iframe YouTube tích hợp playlist của bà */}
+        <div className="overflow-hidden rounded-xl border border-yellow-100 h-[32px] w-[160px] sm:w-[180px] bg-black/5 flex items-center justify-center">
+          <iframe 
+            width="200" 
+            height="35" 
+            src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&autoplay=1&loop=1" 
+            title="YouTube playlist player" 
+            className="scale-[0.85] origin-center opacity-90 hover:opacity-100 transition-opacity border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
