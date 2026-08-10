@@ -3,8 +3,7 @@ import { Character } from '../types';
 import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquare, BookOpen, HelpCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
-import { db } from '../firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 
 interface CharacterModalProps {
   character: Character;
@@ -24,15 +23,24 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
 
-  const hasViewedRef = useRef(false);
+  const viewedCharacterRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (!hasViewedRef.current && character.id && !character.id.startsWith('1786')) {
-      const charRef = doc(db, 'characters', character.id);
-      updateDoc(charRef, { views: increment(1) }).catch(() => {});
-      hasViewedRef.current = true;
-    }
-  }, [character.id]);
+useEffect(() => {
+  if (!character.id) return;
+
+  // Mỗi lần mở modal chỉ tính 1 view
+  if (viewedCharacterRef.current === character.id) return;
+
+  viewedCharacterRef.current = character.id;
+
+  const charRef = doc(db, 'characters', character.id);
+
+  updateDoc(charRef, {
+    views: increment(1),
+  }).catch((error) => {
+    console.error('Lỗi đếm view:', error);
+  });
+}, [character.id]);
 
   const handleTrackClick = async () => {
     if (character.id && !character.id.startsWith('1786')) {
