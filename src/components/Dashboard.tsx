@@ -122,6 +122,38 @@ export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDar
         </div>
       )}
 
+      {/* NÚT CỨU DỮ LIỆU CŨ (Chỉ hiện khi danh sách trống và bà là Admin) */}
+{isAdmin && filteredCharacters.length === 0 && (
+  <button 
+    onClick={() => {
+      const saved = localStorage.getItem('rp-characters');
+      if (!saved) { alert("Không tìm thấy dữ liệu cũ trong trình duyệt này!"); return; }
+      
+      const chars = JSON.parse(saved);
+      const confirm = window.confirm(`Tìm thấy ${chars.length} bé chanh cũ. Bà có chắc muốn đẩy hết lên mây không?`);
+      
+      if (confirm) {
+        // Tui sẽ import hàm addDoc ngay trong này để chạy thủ công
+        import('firebase/firestore').then(({ addDoc, collection }) => {
+           import('../firebase').then(({ db }) => {
+             chars.forEach(async (c: any) => {
+               try {
+                 const { id, ...data } = c;
+                 await addDoc(collection(db, 'characters'), { ...data });
+                 console.log("Đã đẩy xong bé:", c.name);
+               } catch (e) { alert("Lỗi khi đẩy bé " + c.name + ": " + e); }
+             });
+             alert("Đang đẩy dữ liệu... F5 lại trang sau 5 giây nhé!");
+           });
+        });
+      }
+    }}
+    className="mt-6 px-6 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-all shadow-lg animate-bounce"
+  >
+    🔥 CỨU DỮ LIỆU CŨ LÊN FIREBASE
+  </button>
+)}
+
       {/* Modal Xem Chi Tiết Nhân Vật */}
       {selectedCharacter && (
         <CharacterModal 
