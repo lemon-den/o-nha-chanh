@@ -69,27 +69,27 @@ export default function App() {
         </div>
       </header>
 
-      {/* WIDGET PLAYLIST CHILL - DỜI SANG PHẢI, ĐÃ FIX LINK */}
-        <div className="fixed bottom-6 right-6 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-3 rounded-3xl shadow-2xl border-2 border-[#FDE047] flex flex-col gap-2.5 w-[240px]">
-          
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <Music className="w-4 h-4 text-[#3C5C1D] dark:text-lime-300 animate-pulse" />
-              <span className="text-xs font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-widest">Playlist Chill</span>
-            </div>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border border-yellow-200/60 bg-black/5 shadow-inner">
-            <iframe 
-              width="216" 
-              height="120" 
-              src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIaha7S-_pnCqtvwFElaxPPaV1&autoplay=1" 
-              title="Playlist Chill" 
-              className="border-0 w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
+      {/* WIDGET PLAYLIST CHILL - TỐI ƯU CHO CẢ MOBILE VÀ PC */}
+      <div className="fixed bottom-4 right-4 z-50 bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-2.5 rounded-2xl shadow-xl border-2 border-[#FDE047] flex flex-col gap-2 w-[200px] sm:w-[240px]">
+        
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center gap-1.5">
+            <Music className="w-3.5 h-3.5 text-[#3C5C1D] dark:text-lime-300 animate-pulse" />
+            <span className="text-[11px] font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-widest">Playlist Chill</span>
           </div>
         </div>
+
+        <div className="overflow-hidden rounded-xl border border-yellow-200/60 bg-black/5 shadow-inner">
+          <iframe 
+            width="100%" 
+            height="90" 
+            src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&autoplay=1" 
+            title="Playlist Chill" 
+            className="border-0 w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          />
+        </div>
+      </div>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         {view.type === 'list' && (
