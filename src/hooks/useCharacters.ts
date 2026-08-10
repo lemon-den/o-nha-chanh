@@ -5,14 +5,14 @@ import {
   collection, 
   onSnapshot, 
   addDoc, 
-  setDoc, 
+  updateDoc, 
   doc, 
   deleteDoc, 
   query, 
   orderBy 
 } from 'firebase/firestore';
 
-// HÀM "ÉP CÂN" TỰ ĐỘNG
+// HÀM ÉP CÂN TỰ ĐỘNG
 const compressImage = (base64Str: string | undefined): Promise<string | undefined> => {
   return new Promise((resolve) => {
     if (!base64Str || !base64Str.startsWith('data:image')) return resolve(base64Str);
@@ -39,6 +39,17 @@ const compressImage = (base64Str: string | undefined): Promise<string | undefine
     };
     img.onerror = () => resolve(base64Str);
   });
+};
+
+// HÀM LỌC RÁC THÔNG MINH (Không dùng JSON nữa để bảo toàn ID)
+const cleanUndefined = (obj: any) => {
+  const newObj: any = {};
+  Object.keys(obj).forEach(key => {
+    if (obj[key] !== undefined) {
+      newObj[key] = obj[key];
+    }
+  });
+  return newObj;
 };
 
 export function useCharacters() {
@@ -72,10 +83,7 @@ export function useCharacters() {
         feedbacks: []
       };
 
-      // Tuyệt chiêu "bốc hơi" toàn bộ undefined ẩn sâu trong mảng
-      const deepCleanPayload = JSON.parse(JSON.stringify(payload));
-
-      await addDoc(collection(db, 'characters'), deepCleanPayload);
+      await addDoc(collection(db, 'characters'), cleanUndefined(payload));
     } catch (error: any) {
       console.error("Lỗi khi thêm bé chanh: ", error);
       alert("Lỗi Firebase: " + (error.message || "Không xác định"));
@@ -84,7 +92,10 @@ export function useCharacters() {
 
   const updateCharacter = async (id: string, updates: Partial<Omit<Character, 'id' | 'createdAt' | 'updatedAt'>>) => {
     try {
-      if (!id) return;
+      // Nếu không có ID thì dừng ngay, tránh đẻ thêm con
+      if (!id) {
+        throw new Error("Mất ID rồi, không tìm thấy nhân vật để sửa!");
+      }
 
       const compressedPortrait = updates.portrait 
         ? await compressImage(updates.portrait as string) 
@@ -96,19 +107,17 @@ export function useCharacters() {
         updatedAt: Date.now()
       };
 
-      // Cấm tuyệt đối việc đẩy trường "id" vào cập nhật
-      delete (payload as any).id;
-
-      // "Giặt sạch" toàn bộ cặn undefined trước khi gửi lên mây
-      const deepCleanPayload = JSON.parse(JSON.stringify(payload));
+      // Đảm bảo tuyệt đối không đẩy thuộc tính 'id' vào trong document data
+      const cleanedPayload = cleanUndefined(payload);
+      if ('id' in cleanedPayload) delete cleanedPayload.id;
 
       const charDocRef = doc(db, 'characters', id);
-      // Dùng setDoc với tính năng merge để đè dữ liệu vô địch, không lo báo lỗi
-      await setDoc(charDocRef, deepCleanPayload, { merge: true });
+      
+      // updateDoc chỉ sửa đúng dòng có ID đó, tuyệt đối không phân thân
+      await updateDoc(charDocRef, cleanedPayload);
 
     } catch (error: any) {
       console.error("Lỗi khi cập nhật bé chanh: ", error);
-      // Giờ thì nó sẽ báo thẳng lỗi tiếng Anh của Firebase ra màn hình!
       alert("Lỗi Firebase: " + (error.message || "Không xác định"));
     }
   };
