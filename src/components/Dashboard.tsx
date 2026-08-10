@@ -3,21 +3,24 @@ import { Character } from '../types';
 import { Plus, Search, Sparkles } from 'lucide-react';
 import CharacterCard from './CharacterCard';
 import CharacterModal from './CharacterModal';
+import { doc, updateDoc, increment } from 'firebase/firestore';
+import { db } from '../firebase';
 
 interface DashboardProps {
   characters: Character[];
   onCreate: () => void;
   onEdit: (id: string) => void;
-  onDelete: (id: string) => void; // Khai báo bắt đường truyền Xóa từ App.tsx
+  onDelete: (id: string) => void;
   isAdmin: boolean;
   isDark: boolean;
 }
 
-// Nhận thêm onDelete ở đây để sử dụng
 export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAdmin, isDark }: DashboardProps) {
   const [selectedTag, setSelectedTag] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  
+  // MAGIC 🪄: Dùng ID để lấy dữ liệu live mới nhất từ mây, không lo bị đứng hình view/click
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [showAllTags, setShowAllTags] = useState(false);
 
   // Lọc danh sách tag độc nhất từ các nhân vật
@@ -30,6 +33,22 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
                           char.traits.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesTag && matchesSearch;
   });
+
+  // Lấy dữ liệu LIVE (luôn cập nhật mới nhất từ Firebase)
+  const liveSelectedCharacter = characters.find(c => c.id === selectedCharacterId);
+
+  // Xử lý khi bấm mở thẻ nhân vật -> Tự động tăng View lên 1
+  const handleOpenCharacter = async (char: Character) => {
+    setSelectedCharacterId(char.id); 
+    if (char.id) {
+      try {
+        const charRef = doc(db, 'characters', char.id);
+        await updateDoc(charRef, { views: increment(1) });
+      } catch (error) {
+        console.error("Lỗi đếm view: ", error);
+      }
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -112,7 +131,7 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
           <CharacterCard 
             key={char.id} 
             character={char} 
-            onClick={() => setSelectedCharacter(char)} 
+            onClick={() => handleOpenCharacter(char)} 
           />
         ))}
       </div>
@@ -124,21 +143,20 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
         </div>
       )}
 
-      {/* Modal Xem Chi Tiết Nhân Vật */}
-      {selectedCharacter && (
+      {/* Modal Xem Chi Tiết Nhân Vật (Đã kết nối đầy đủ Edit và Delete) */}
+      {liveSelectedCharacter && (
         <CharacterModal 
-          character={selectedCharacter}
+          character={liveSelectedCharacter}
           isAdmin={isAdmin}
-          onClose={() => setSelectedCharacter(null)}
+          onClose={() => setSelectedCharacterId(null)}
           onEdit={() => {
-            setSelectedCharacter(null);
-            onEdit(selectedCharacter.id);
+            setSelectedCharacterId(null);
+            if (liveSelectedCharacter.id) onEdit(liveSelectedCharacter.id);
           }}
           onDelete={(id) => {
-            // Hỏi xác nhận trước khi xóa
             if (window.confirm("Bà có chắc chắn muốn tiễn bé chanh này bay màu không?")) {
               onDelete(id);
-              setSelectedCharacter(null);
+              setSelectedCharacterId(null);
             }
           }}
         />
