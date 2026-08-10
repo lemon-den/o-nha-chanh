@@ -11,9 +11,16 @@ interface CharacterEditorProps {
 export default function CharacterEditor({ character, onSave, onCancel }: CharacterEditorProps) {
   const [name, setName] = useState(character?.name || '');
   const [portrait, setPortrait] = useState(character?.portrait || '');
-  const [ggAiLink, setGgAiLink] = useState(character?.ggAiLink || '');
   
-  // Tag và Trait nhập cách nhau bằng dấu phẩy cho lẹ
+  // Link 1 và Nhãn 1
+  const [googleAiLink, setGoogleAiLink] = useState(character?.googleAiLink || '');
+  const [googleAiLabel, setGoogleAiLabel] = useState(character?.googleAiLabel || 'Link Google AI (Ver 1)');
+
+  // Link 2 và Nhãn 2
+  const [googleAiLink2, setGoogleAiLink2] = useState(character?.googleAiLink2 || '');
+  const [googleAiLabel2, setGoogleAiLabel2] = useState(character?.googleAiLabel2 || 'Link Google AI (Ver 2)');  
+  
+  // Tag và Trait nhập cách nhau bằng dấu phẩy
   const [tagsStr, setTagsStr] = useState(character?.tags.join(', ') || '');
   const [traitsStr, setTraitsStr] = useState(character?.traits.join(', ') || '');
   
@@ -23,7 +30,7 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
   const [isLocked, setIsLocked] = useState(character?.isLocked || false);
   const [password, setPassword] = useState(character?.password || '');
 
-  // Xử lý up ảnh thành Base64 để lưu thẳng vào máy
+  // Xử lý up ảnh thành Base64
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -47,7 +54,10 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
       id: character?.id || Date.now().toString(),
       name,
       portrait,
-      ggAiLink,
+      googleAiLink,
+      googleAiLabel,
+      googleAiLink2,
+      googleAiLabel2,
       // Tự động cắt khoảng trắng và bỏ qua ô trống
       tags: tagsStr.split(',').map(t => t.trim()).filter(Boolean),
       traits: traitsStr.split(',').map(t => t.trim()).filter(Boolean),
@@ -91,7 +101,6 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
               <input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             </div>
             
-            {/* Nếu lỡ up nhầm, bấm nút này để xóa ảnh */}
             {portrait && (
               <button type="button" onClick={() => setPortrait('')} className="text-sm font-bold text-red-500 hover:text-red-700">
                 Xóa ảnh
@@ -107,22 +116,29 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
               <input required type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white/70 dark:bg-black/30 focus:outline-none focus:border-[#3C5C1D] dark:focus:border-lime-400 font-bold text-[#3C5C1D] dark:text-lime-100 shadow-inner" placeholder="VD: Ashton Calloway" />
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-[#3C5C1D] dark:text-lime-500 mb-1">Google AI Studio Link</label>
-              <input type="url" value={ggAiLink} onChange={(e) => setGgAiLink(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white/70 dark:bg-black/30 focus:outline-none focus:border-[#3C5C1D] dark:focus:border-lime-400 text-sm text-[#3C5C1D] dark:text-lime-100 shadow-inner" placeholder="https://aistudio.google.com/..." />
+            {/* CỤM LINK GOOGLE AI 1 */}
+            <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-yellow-300/60 dark:border-lime-900 flex flex-col gap-3">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider mb-1 text-[#3C5C1D] dark:text-lime-300">Tên hiển thị Link 1 (VD: Ver Chat)</label>
+                <input type="text" value={googleAiLabel} onChange={(e) => setGoogleAiLabel(e.target.value)} className="w-full px-4 py-2 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 text-sm focus:outline-none" placeholder="Mô tả link 1..." />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider mb-1 text-[#3C5C1D] dark:text-lime-300">Google AI Studio Link 1</label>
+                <input type="text" value={googleAiLink} onChange={(e) => setGoogleAiLink(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 text-sm focus:outline-none" placeholder="https://aistudio.google.com/..." />
+              </div>
             </div>
 
-            {/* LINK GOOGLE AI STUDIO THỨ HAI */}
-          <div>
-            <label className="block text-sm font-bold text-[#3C5C1D] dark:text-lime-500 mb-1">Google AI Studio Link 2</label>
-            <input 
-              type="text" 
-              name="googleAiLink2" // Đổi tên biến này cho link thứ 2
-              placeholder="https://aistudio.google.com/..."
-              // defaultValue={character?.googleAiLink2 || ''} 
-              className="w-full px-4 py-2.5 rounded-xl border-2 border-yellow-200 dark:border-lime-900 bg-white/50 dark:bg-black/40 focus:outline-none focus:border-[#3C5C1D] dark:focus:border-lime-500 transition-all text-sm"
-            />
-          </div>
+            {/* CỤM LINK GOOGLE AI 2 */}
+            <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-yellow-300/60 dark:border-lime-900 flex flex-col gap-3">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider mb-1 text-[#3C5C1D] dark:text-lime-300">Tên hiển thị Link 2 (VD: Ver Novel)</label>
+                <input type="text" value={googleAiLabel2} onChange={(e) => setGoogleAiLabel2(e.target.value)} className="w-full px-4 py-2 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 text-sm focus:outline-none" placeholder="Mô tả link 2..." />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider mb-1 text-[#3C5C1D] dark:text-lime-300">Google AI Studio Link 2</label>
+                <input type="text" value={googleAiLink2} onChange={(e) => setGoogleAiLink2(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 text-sm focus:outline-none" placeholder="https://aistudio.google.com/..." />
+              </div>
+            </div>
 
             {/* HỆ THỐNG CÀI PASS */}
             <div className="bg-[#E5EEDF] dark:bg-lime-900/30 p-4 rounded-xl border border-[#3C5C1D]/20 dark:border-lime-800">
