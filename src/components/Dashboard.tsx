@@ -122,7 +122,6 @@ export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDar
         </div>
       )}
 
-      {/* Modal Xem Chi Tiết Nhân Vật */}
       {selectedCharacter && (
         <CharacterModal 
           character={selectedCharacter}
@@ -131,6 +130,12 @@ export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDar
           onEdit={() => {
             setSelectedCharacter(null);
             onEdit(selectedCharacter.id);
+          }}
+          onDelete={(id) => {
+            if (window.confirm("Bà có chắc chắn muốn tiễn bé chanh này bay màu không?")) {
+              onDelete(id);
+              setSelectedCharacter(null);
+            }
           }}
         />
       )}
