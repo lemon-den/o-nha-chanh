@@ -19,32 +19,31 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
   const [selectedTag, setSelectedTag] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // MAGIC 🪄: Chỉ lưu ID của nhân vật được chọn thay vì lưu toàn bộ dữ liệu cũ
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [showAllTags, setShowAllTags] = useState(false);
 
   const allTags = ['All', ...Array.from(new Set(characters.flatMap(c => c.tags)))];
 
   const filteredCharacters = characters.filter(char => {
+    // Chặn luôn mấy con rác không có tên
+    if (!char.name) return false;
     const matchesTag = selectedTag === 'All' || char.tags.includes(selectedTag);
     const matchesSearch = char.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           char.traits.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesTag && matchesSearch;
   });
 
-  // Lấy dữ liệu LIVE (luôn mới nhất) từ danh sách
   const liveSelectedCharacter = characters.find(c => c.id === selectedCharacterId);
 
-  // Xử lý khi bấm mở thẻ nhân vật
   const handleOpenCharacter = async (char: Character) => {
     setSelectedCharacterId(char.id); 
-    // Tự động báo lên mây: "Cộng 1 View liền!"
-    if (char.id) {
+    // CHẶN NGAY: Nếu ID là dạng số cũ (bắt đầu bằng 1786) thì bỏ qua, không update để tránh tạo rác
+    if (char.id && !char.id.startsWith('1786')) {
       try {
         const charRef = doc(db, 'characters', char.id);
         await updateDoc(charRef, { views: increment(1) });
       } catch (error) {
-        console.error("Lỗi đếm view: ", error);
+        console.error("Bỏ qua lỗi view cho ID cũ", error);
       }
     }
   };
@@ -101,11 +100,13 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
             {tag}
           </button>
         ))}
+
         {!showAllTags && allTags.length > 8 && (
           <button onClick={() => setShowAllTags(true)} className="px-5 py-2.5 rounded-full text-sm font-bold bg-[#FFF9C4] text-[#3C5C1D] hover:bg-[#FDE047] transition-all shadow-sm border border-[#FDE047] border-dashed">
             +{allTags.length - 8} tags nữa...
           </button>
         )}
+
         {showAllTags && allTags.length > 8 && (
           <button onClick={() => setShowAllTags(false)} className="px-5 py-2.5 rounded-full text-sm font-bold bg-white/60 text-[#3C5C1D] hover:bg-white transition-all shadow-sm border border-[#3C5C1D]/20">
             Thu gọn lại 🍋
@@ -130,7 +131,6 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
         </div>
       )}
 
-      {/* Truyền dữ liệu LIVE vào bảng */}
       {liveSelectedCharacter && (
         <CharacterModal 
           character={liveSelectedCharacter}
@@ -148,6 +148,7 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
           }}
         />
       )}
+
     </div>
   );
 }
