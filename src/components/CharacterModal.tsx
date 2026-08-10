@@ -18,6 +18,8 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
   const [isUnlocked, setIsUnlocked] = useState(!character.isLocked);
   const [errorMsg, setErrorMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'lore' | 'feedback'>('lore');
+  const [viewCount, setViewCount] = useState(character.views ?? 0);
+const [clickCount, setClickCount] = useState(character.clicks ?? 0);
 
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [nickname, setNickname] = useState('');
@@ -28,10 +30,10 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
 useEffect(() => {
   if (!character.id) return;
 
-  // Mỗi lần mở modal chỉ tính 1 view
-  if (viewedCharacterRef.current === character.id) return;
+  const charRef = doc(db, 'characters', character.id);
 
-  viewedCharacterRef.current = character.id;
+  useEffect(() => {
+  if (!character.id) return;
 
   const charRef = doc(db, 'characters', character.id);
 
@@ -40,19 +42,26 @@ useEffect(() => {
   }).catch((error) => {
     console.error('Lỗi đếm view:', error);
   });
+
+  setViewCount((prev) => prev + 1);
 }, [character.id]);
 
   const handleTrackClick = async () => {
-    if (character.id && !character.id.startsWith('1786')) {
-      try {
-        const charRef = doc(db, 'characters', character.id);
-        await updateDoc(charRef, { clicks: increment(1) });
-      } catch (error) {
-        console.error("Lỗi đếm click: ", error);
-      }
-    }
-  };
+     if (!character.id) return;
 
+  try {
+    const charRef = doc(db, 'characters', character.id);
+
+    await updateDoc(charRef, {
+      clicks: increment(1),
+    });
+
+    setClickCount((prev) => prev + 1);
+  } catch (error) {
+    console.error('Lỗi đếm click:', error);
+  }
+};
+  
   useEffect(() => {
     const q = query(collection(db, `feedbacks_${character.id}`), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -100,8 +109,8 @@ useEffect(() => {
         
         <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-yellow-200 flex items-center gap-3 text-[11px] font-bold text-[#3C5C1D]">
-            <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5"/> {character.views || 0} views</span>
-            <span className="flex items-center gap-1"><MousePointerClick className="w-3.5 h-3.5"/> {character.clicks || 0} clicks</span>
+            <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5"/> {viewCount} views</span>
+            <span className="flex items-center gap-1"><MousePointerClick className="w-3.5 h-3.5"/> {clickCount} clicks</span>
           </div>
           <button onClick={onClose} className="p-2 rounded-full bg-white/80 hover:bg-white text-[#3C5C1D] transition-colors shadow-sm border border-yellow-200">
             <X className="w-5 h-5" />
