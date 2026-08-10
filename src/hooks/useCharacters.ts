@@ -5,7 +5,7 @@ import {
   collection, 
   onSnapshot, 
   addDoc, 
-  updateDoc, 
+  setDoc, 
   doc, 
   deleteDoc, 
   query, 
@@ -60,25 +60,25 @@ export function useCharacters() {
 
   const addCharacter = async (char: Omit<Character, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      // BỘ LỌC THÔNG MINH: Vứt hết các trường undefined trước khi gửi
-      const cleanChar = Object.fromEntries(
-        Object.entries(char).filter(([_, v]) => v !== undefined)
-      );
-
-      const compressedPortrait = await compressImage(cleanChar.portrait as string | undefined);
+      const compressedPortrait = await compressImage(char.portrait);
       
-      await addDoc(collection(db, 'characters'), {
-        ...cleanChar,
+      const payload = {
+        ...char,
         ...(compressedPortrait ? { portrait: compressedPortrait } : {}),
         createdAt: Date.now(),
         updatedAt: Date.now(),
         views: 1,
         clicks: 0,
         feedbacks: []
-      });
-    } catch (error) {
+      };
+
+      // Tuyệt chiêu "bốc hơi" toàn bộ undefined ẩn sâu trong mảng
+      const deepCleanPayload = JSON.parse(JSON.stringify(payload));
+
+      await addDoc(collection(db, 'characters'), deepCleanPayload);
+    } catch (error: any) {
       console.error("Lỗi khi thêm bé chanh: ", error);
-      alert("Lỗi mạng rồi, không lưu được nhân vật lên mây!");
+      alert("Lỗi Firebase: " + (error.message || "Không xác định"));
     }
   };
 
@@ -86,25 +86,30 @@ export function useCharacters() {
     try {
       if (!id) return;
 
-      // BỘ LỌC THÔNG MINH: Xóa sạch undefined để Firebase không giãy nảy
-      const cleanUpdates = Object.fromEntries(
-        Object.entries(updates).filter(([_, v]) => v !== undefined)
-      );
+      const compressedPortrait = updates.portrait 
+        ? await compressImage(updates.portrait as string) 
+        : updates.portrait;
 
-      // Ép cân ảnh nếu Chủ Ổ có thay avatar mới lúc edit
-      const compressedPortrait = cleanUpdates.portrait 
-        ? await compressImage(cleanUpdates.portrait as string) 
-        : cleanUpdates.portrait;
-
-      const charDocRef = doc(db, 'characters', id);
-      await updateDoc(charDocRef, {
-        ...cleanUpdates,
+      const payload = {
+        ...updates,
         ...(compressedPortrait ? { portrait: compressedPortrait } : {}),
         updatedAt: Date.now()
-      });
-    } catch (error) {
+      };
+
+      // Cấm tuyệt đối việc đẩy trường "id" vào cập nhật
+      delete (payload as any).id;
+
+      // "Giặt sạch" toàn bộ cặn undefined trước khi gửi lên mây
+      const deepCleanPayload = JSON.parse(JSON.stringify(payload));
+
+      const charDocRef = doc(db, 'characters', id);
+      // Dùng setDoc với tính năng merge để đè dữ liệu vô địch, không lo báo lỗi
+      await setDoc(charDocRef, deepCleanPayload, { merge: true });
+
+    } catch (error: any) {
       console.error("Lỗi khi cập nhật bé chanh: ", error);
-      alert("Lỗi mạng rồi, không cập nhật được!");
+      // Giờ thì nó sẽ báo thẳng lỗi tiếng Anh của Firebase ra màn hình!
+      alert("Lỗi Firebase: " + (error.message || "Không xác định"));
     }
   };
 
