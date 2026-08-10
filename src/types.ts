@@ -6,7 +6,9 @@ export interface Character {
   biography: string;
   portrait?: string; // base64 encoded image
   ggaiLink?: string;
+  googleAiLabel?: string;
   googleAiLink2?: string;
+  googleAiLabel2?: string;
   createdAt: number;
   updatedAt: number;
   isLocked?: boolean;     // Có khóa pass hay không?
