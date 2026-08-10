@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Character } from '../types';
-import { Save, X, ImagePlus, Lock, Unlock, AlertCircle } from 'lucide-react';
+import { Save, X, ImagePlus, Lock, Unlock, AlertCircle, HelpCircle } from 'lucide-react';
 
 interface CharacterEditorProps {
   character?: Character;
@@ -20,15 +20,16 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
   const [googleAiLink2, setGoogleAiLink2] = useState(character?.googleAiLink2 || '');
   const [googleAiLabel2, setGoogleAiLabel2] = useState(character?.googleAiLabel2 || 'Link Google AI (Ver 2)');  
   
-  // Tag và Trait nhập cách nhau bằng dấu phẩy
+  // Tag và Trait
   const [tagsStr, setTagsStr] = useState(character?.tags.join(', ') || '');
   const [traitsStr, setTraitsStr] = useState(character?.traits.join(', ') || '');
   
   const [biography, setBiography] = useState(character?.biography || '');
   
-  // Trạng thái Khóa pass
+  // Trạng thái Khóa pass và Gợi ý pass
   const [isLocked, setIsLocked] = useState(character?.isLocked || false);
   const [password, setPassword] = useState(character?.password || '');
+  const [passwordHint, setPasswordHint] = useState(character?.passwordHint || '');
 
   // Xử lý up ảnh thành Base64
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,12 +59,12 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
       googleAiLabel,
       googleAiLink2,
       googleAiLabel2,
-      // Tự động cắt khoảng trắng và bỏ qua ô trống
       tags: tagsStr.split(',').map(t => t.trim()).filter(Boolean),
       traits: traitsStr.split(',').map(t => t.trim()).filter(Boolean),
       biography,
       isLocked,
       password: isLocked ? password.trim() : '',
+      passwordHint: isLocked ? passwordHint.trim() : '',
       createdAt: character?.createdAt || new Date().toISOString(),
       views: character?.views || 0,
       clicks: character?.clicks || 0,
@@ -113,7 +114,7 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
             
             <div>
               <label className="block text-sm font-bold text-[#3C5C1D] dark:text-lime-500 mb-1">Tên nhân vật *</label>
-              <input required type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white/70 dark:bg-black/30 focus:outline-none focus:border-[#3C5C1D] dark:focus:border-lime-400 font-bold text-[#3C5C1D] dark:text-lime-100 shadow-inner" placeholder="VD: Ashton Calloway" />
+              <input required type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white/70 dark:bg-black/30 focus:outline-none focus:border-[#3C5C1D] dark:focus:border-lime-400 font-bold text-[#3C5C1D] dark:text-lime-100 shadow-inner" placeholder="VD: Kỳ Phong" />
             </div>
 
             {/* CỤM LINK GOOGLE AI 1 */}
@@ -140,9 +141,9 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
               </div>
             </div>
 
-            {/* HỆ THỐNG CÀI PASS */}
-            <div className="bg-[#E5EEDF] dark:bg-lime-900/30 p-4 rounded-xl border border-[#3C5C1D]/20 dark:border-lime-800">
-              <div className="flex items-center justify-between mb-3">
+            {/* HỆ THỐNG CÀI PASS & GỢI Ý PASS */}
+            <div className="bg-[#E5EEDF] dark:bg-lime-900/30 p-4 rounded-xl border border-[#3C5C1D]/20 dark:border-lime-800 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm font-bold text-[#3C5C1D] dark:text-lime-400 cursor-pointer">
                   {isLocked ? <Lock className="w-4 h-4 text-red-500" /> : <Unlock className="w-4 h-4" />}
                   Khóa mật khẩu Link GG AI?
@@ -153,9 +154,21 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
               </div>
               
               {isLocked && (
-                <div className="animate-in slide-in-from-top-2">
-                  <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Nhập mật khẩu cho bé này..." className="w-full px-4 py-2 rounded-lg border border-red-300 bg-white text-red-600 font-bold text-sm focus:outline-none focus:border-red-500 shadow-inner" />
-                  <p className="flex items-center gap-1 text-[11px] text-red-500 mt-2 font-medium"><AlertCircle className="w-3 h-3"/> Người xem phải nhập đúng pass này mới thấy được link.</p>
+                <div className="flex flex-col gap-3 animate-in slide-in-from-top-2">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-1 text-red-600 dark:text-red-400">Mật khẩu</label>
+                    <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Nhập mật khẩu cho bé này..." className="w-full px-4 py-2 rounded-lg border border-red-300 bg-white text-red-600 font-bold text-sm focus:outline-none focus:border-red-500 shadow-inner" />
+                  </div>
+
+                  {/* Ô NHẬP GỢI Ý MẬT KHẨU MỚI */}
+                  <div>
+                    <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider mb-1 text-[#3C5C1D] dark:text-lime-400">
+                      <HelpCircle className="w-3.5 h-3.5"/> Gợi ý mật khẩu (Password Hint)
+                    </label>
+                    <input type="text" value={passwordHint} onChange={(e) => setPasswordHint(e.target.value)} placeholder="VD: Ngày sinh nhân vật, tên viết tắt..." className="w-full px-4 py-2 rounded-lg border border-yellow-300 dark:border-lime-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 text-sm focus:outline-none shadow-inner" />
+                  </div>
+
+                  <p className="flex items-center gap-1 text-[11px] text-red-500 font-medium"><AlertCircle className="w-3 h-3"/> Người xem phải nhập đúng pass mới thấy được link.</p>
                 </div>
               )}
             </div>
