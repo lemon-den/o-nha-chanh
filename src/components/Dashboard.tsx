@@ -3,8 +3,6 @@ import { Character } from '../types';
 import { Plus, Search, Sparkles } from 'lucide-react';
 import CharacterCard from './CharacterCard';
 import CharacterModal from './CharacterModal';
-import { doc, updateDoc, increment } from 'firebase/firestore';
-import { db } from '../firebase';
 
 interface DashboardProps {
   characters: Character[];
@@ -35,19 +33,10 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
 
   const liveSelectedCharacter = characters.find(c => c.id === selectedCharacterId);
 
-  const handleOpenCharacter = async (char: Character) => {
-    setSelectedCharacterId(char.id); 
-    // CHẶN NGAY: Nếu ID là dạng số cũ (bắt đầu bằng 1786) thì bỏ qua, không update để tránh tạo rác
-    if (char.id && !char.id.startsWith('1786')) {
-      try {
-        const charRef = doc(db, 'characters', char.id);
-        await updateDoc(charRef, { views: increment(1) });
-      } catch (error) {
-        console.error("Bỏ qua lỗi view cho ID cũ", error);
-      }
-    }
-  };
-
+  const handleOpenCharacter = (char: Character) => {
+  setSelectedCharacterId(char.id);
+};
+  
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
