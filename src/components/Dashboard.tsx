@@ -3,7 +3,7 @@ import { Character } from '../types';
 import { Plus, Search, Sparkles } from 'lucide-react';
 import CharacterCard from './CharacterCard';
 import CharacterModal from './CharacterModal';
-import { doc, updateDoc, increment } from 'firebase/firestore';
+import { doc, setDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 
 interface DashboardProps {
@@ -19,14 +19,11 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
   const [selectedTag, setSelectedTag] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // MAGIC 🪄: Dùng ID để lấy dữ liệu live mới nhất từ mây, không lo bị đứng hình view/click
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [showAllTags, setShowAllTags] = useState(false);
 
-  // Lọc danh sách tag độc nhất từ các nhân vật
   const allTags = ['All', ...Array.from(new Set(characters.flatMap(c => c.tags)))];
 
-  // Lọc theo tag và từ khóa tìm kiếm
   const filteredCharacters = characters.filter(char => {
     const matchesTag = selectedTag === 'All' || char.tags.includes(selectedTag);
     const matchesSearch = char.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -34,16 +31,15 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
     return matchesTag && matchesSearch;
   });
 
-  // Lấy dữ liệu LIVE (luôn cập nhật mới nhất từ Firebase)
   const liveSelectedCharacter = characters.find(c => c.id === selectedCharacterId);
 
-  // Xử lý khi bấm mở thẻ nhân vật -> Tự động tăng View lên 1
   const handleOpenCharacter = async (char: Character) => {
     setSelectedCharacterId(char.id); 
     if (char.id) {
       try {
         const charRef = doc(db, 'characters', char.id);
-        await updateDoc(charRef, { views: increment(1) });
+        // Dùng setDoc với merge để tránh lỗi "No document to update"
+        await setDoc(charRef, { views: increment(1) }, { merge: true });
       } catch (error) {
         console.error("Lỗi đếm view: ", error);
       }
@@ -53,7 +49,6 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
-      {/* Tiêu đề & Nút Tạo Nhân Vật */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className={`text-4xl md:text-5xl font-serif font-bold mb-3 drop-shadow-sm transition-colors ${isDark ? 'text-lime-50' : 'text-[#3C5C1D]'}`}>
@@ -76,7 +71,6 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
             />
           </div>
 
-          {/* CHỈ CHỦ Ổ MỚI THẤY NÚT TẠO */}
           {isAdmin && (
             <button
               onClick={onCreate}
@@ -88,7 +82,6 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
         </div>
       </div>
 
-      {/* Tags System Thu Gọn Thông Minh */}
       <div className="flex flex-wrap gap-3">
         {(showAllTags ? allTags : allTags.slice(0, 8)).map(tag => (
           <button
@@ -107,25 +100,18 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
         ))}
 
         {!showAllTags && allTags.length > 8 && (
-          <button
-            onClick={() => setShowAllTags(true)}
-            className="px-5 py-2.5 rounded-full text-sm font-bold bg-[#FFF9C4] text-[#3C5C1D] hover:bg-[#FDE047] transition-all shadow-sm border border-[#FDE047] border-dashed"
-          >
+          <button onClick={() => setShowAllTags(true)} className="px-5 py-2.5 rounded-full text-sm font-bold bg-[#FFF9C4] text-[#3C5C1D] hover:bg-[#FDE047] transition-all shadow-sm border border-[#FDE047] border-dashed">
             +{allTags.length - 8} tags nữa...
           </button>
         )}
 
         {showAllTags && allTags.length > 8 && (
-          <button
-            onClick={() => setShowAllTags(false)}
-            className="px-5 py-2.5 rounded-full text-sm font-bold bg-white/60 text-[#3C5C1D] hover:bg-white transition-all shadow-sm border border-[#3C5C1D]/20"
-          >
+          <button onClick={() => setShowAllTags(false)} className="px-5 py-2.5 rounded-full text-sm font-bold bg-white/60 text-[#3C5C1D] hover:bg-white transition-all shadow-sm border border-[#3C5C1D]/20">
             Thu gọn lại 🍋
           </button>
         )}
       </div>
 
-      {/* Danh sách nhân vật dạng lưới */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredCharacters.map(char => (
           <CharacterCard 
@@ -143,7 +129,6 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
         </div>
       )}
 
-      {/* Modal Xem Chi Tiết Nhân Vật (Đã kết nối đầy đủ Edit và Delete) */}
       {liveSelectedCharacter && (
         <CharacterModal 
           character={liveSelectedCharacter}
