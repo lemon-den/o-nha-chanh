@@ -3,8 +3,8 @@ import { Character } from '../types';
 import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquare, BookOpen, HelpCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
-import { db } from '../firebase'; // <--- Thêm dòng này
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore'; // <--- Thêm doc, updateDoc, increment
+import { db } from '../firebase';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
 
 interface CharacterModalProps {
   character: Character;
@@ -20,7 +20,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
   const [errorMsg, setErrorMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'lore' | 'feedback'>('lore');
   const [viewCount, setViewCount] = useState(character.views ?? 0);
-const [clickCount, setClickCount] = useState(character.clicks ?? 0);
+  const [clickCount, setClickCount] = useState(character.clicks ?? 0);
 
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [nickname, setNickname] = useState('');
@@ -28,33 +28,33 @@ const [clickCount, setClickCount] = useState(character.clicks ?? 0);
 
   const hasViewedRef = useRef(false);
 
-useEffect(() => {
-  if (!character.id || hasViewedRef.current) return;
+  useEffect(() => {
+    if (!character.id || hasViewedRef.current) return;
+    hasViewedRef.current = true;
 
-  hasViewedRef.current = true;
-
-  const charRef = doc(db, 'characters', character.id);
-
-  updateDoc(charRef, {
-    views: increment(1),
-  }).catch((error) => {
-    console.error('Lỗi đếm view:', error);
-  });
-}, [character.id]);
+    const charRef = doc(db, 'characters', character.id);
+    updateDoc(charRef, {
+      views: increment(1),
+    }).then(() => {
+      setViewCount(prev => prev + 1);
+    }).catch((error) => {
+      console.error('Lỗi đếm view:', error);
+    });
+  }, [character.id]);
   
   const handleTrackClick = async () => {
-  if (!character.id) return;
+    if (!character.id) return;
 
-  try {
-    const charRef = doc(db, 'characters', character.id);
-
-    await updateDoc(charRef, {
-      clicks: increment(1),
-    });
-  } catch (error) {
-    console.error('Lỗi đếm click:', error);
-  }
-};
+    try {
+      const charRef = doc(db, 'characters', character.id);
+      await updateDoc(charRef, {
+        clicks: increment(1),
+      });
+      setClickCount(prev => prev + 1);
+    } catch (error) {
+      console.error('Lỗi đếm click:', error);
+    }
+  };
   
   useEffect(() => {
     const q = query(collection(db, `feedbacks_${character.id}`), orderBy('createdAt', 'desc'));
