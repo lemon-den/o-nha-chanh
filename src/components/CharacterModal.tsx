@@ -1,6 +1,7 @@
 import { Character } from '../types';
 import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquare, BookOpen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
@@ -158,7 +159,9 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
 
               {character.biography ? (
                 <div className="markdown-body max-w-none [&_p]:!text-stone-800 [&_h1]:!text-[#3C5C1D] text-sm leading-relaxed">
-                  <ReactMarkdown>{character.biography}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+  {character.biography}
+</ReactMarkdown>
                 </div>
               ) : (
                 <p className="text-[#3C5C1D]/70 italic text-sm">Chưa có cốt truyện nào được viết cho bé chanh này.</p>
