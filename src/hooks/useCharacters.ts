@@ -71,8 +71,8 @@ export function useCharacters() {
         ...(compressedPortrait ? { portrait: compressedPortrait } : {}),
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        views: 1,
-        clicks: 0,
+        views: 0,
+clicks: 0,
         feedbacks: []
       };
       await addDoc(collection(db, 'characters'), cleanUndefined(payload));
