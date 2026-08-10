@@ -8,12 +8,13 @@ interface DashboardProps {
   characters: Character[];
   onCreate: () => void;
   onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => void; // Khai báo bắt đường truyền Xóa từ App.tsx
   isAdmin: boolean;
   isDark: boolean;
 }
 
-export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDark }: DashboardProps) {
+// Nhận thêm onDelete ở đây để sử dụng
+export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAdmin, isDark }: DashboardProps) {
   const [selectedTag, setSelectedTag] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
@@ -33,7 +34,7 @@ export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDar
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
-      {/* Tiêu đề & Nút Tạo Nhân Vật (Chỉ Chủ Ổ mới thấy) */}
+      {/* Tiêu đề & Nút Tạo Nhân Vật */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className={`text-4xl md:text-5xl font-serif font-bold mb-3 drop-shadow-sm transition-colors ${isDark ? 'text-lime-50' : 'text-[#3C5C1D]'}`}>
@@ -123,6 +124,7 @@ export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDar
         </div>
       )}
 
+      {/* Modal Xem Chi Tiết Nhân Vật */}
       {selectedCharacter && (
         <CharacterModal 
           character={selectedCharacter}
@@ -133,6 +135,7 @@ export default function Dashboard({ characters, onCreate, onEdit, isAdmin, isDar
             onEdit(selectedCharacter.id);
           }}
           onDelete={(id) => {
+            // Hỏi xác nhận trước khi xóa
             if (window.confirm("Bà có chắc chắn muốn tiễn bé chanh này bay màu không?")) {
               onDelete(id);
               setSelectedCharacter(null);
