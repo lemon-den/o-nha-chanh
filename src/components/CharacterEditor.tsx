@@ -52,7 +52,8 @@ export default function CharacterEditor({ character, onSave, onCancel }: Charact
     }
 
     const newChar: Character = {
-      id: character?.id || '', // <--- Đổi từ Date.now().toString() thành chuỗi trống để Firebase tự sinh ID chuẩn
+      // NẾU ĐANG SỬA THÌ LẤY ID CŨ, NẾU TẠO MỚI THÌ ĐỂ TRỐNG ĐỂ FIREBASE TỰ CẤP ID CHUẨN
+      id: character?.id || '', 
       name,
       portrait,
       googleAiLink,
