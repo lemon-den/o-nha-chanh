@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Character } from '../types';
 import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquare, BookOpen, HelpCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -24,9 +24,18 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
 
-  // Hàm xử lý khi người ta bấm Link GG AI
+  const hasViewedRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasViewedRef.current && character.id && !character.id.startsWith('1786')) {
+      const charRef = doc(db, 'characters', character.id);
+      updateDoc(charRef, { views: increment(1) }).catch(() => {});
+      hasViewedRef.current = true;
+    }
+  }, [character.id]);
+
   const handleTrackClick = async () => {
-    if (character.id) {
+    if (character.id && !character.id.startsWith('1786')) {
       try {
         const charRef = doc(db, 'characters', character.id);
         await updateDoc(charRef, { clicks: increment(1) });
@@ -109,11 +118,13 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
                     <div className="flex items-center gap-2 text-red-600 font-bold justify-center mb-0.5 text-sm">
                       <Lock className="w-4 h-4" /> Bị niêm phong mật khẩu
                     </div>
+                    
                     {character.passwordHint && (
                       <p className="flex items-center gap-1.5 text-xs text-stone-600 italic font-medium justify-center">
                         <HelpCircle className="w-3.5 h-3.5 text-amber-500 shrink-0" /> <b>Gợi ý:</b> {character.passwordHint}
                       </p>
                     )}
+
                     <input type="password" placeholder="Nhập pass mở link..." value={passInput} onChange={(e) => setPassInput(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border-2 border-yellow-300 bg-white text-center font-bold text-sm focus:outline-none focus:border-lime-500 shadow-inner" />
                     {errorMsg && <p className="text-red-500 text-xs text-center font-medium">{errorMsg}</p>}
                     <button onClick={handleUnlock} className="w-full py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-colors shadow-sm">
