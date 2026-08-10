@@ -12,7 +12,7 @@ interface CharacterModalProps {
   onEdit: () => void;
   isAdmin: boolean;
   onUpdateViews?: (id: string) => void;
-  onDelete?: (id: string) => void; // Khai báo Props để nhận lệnh Xóa
+  onDelete?: (id: string) => void;
 }
 
 export default function CharacterModal({ character, onClose, onEdit, isAdmin, onDelete }: CharacterModalProps) {
@@ -85,7 +85,8 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      <div className="relative w-full max-w-5xl h-auto max-h-[90vh] bg-[#FFF9C4] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border-4 border-[#FDE047]">
+      {/* VỎ NGOÀI: Khóa chiều cao md:h-[85vh] để hiện thanh cuộn trên máy tính */}
+      <div className="relative w-full max-w-5xl max-h-[90vh] md:h-[85vh] bg-[#FFF9C4] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border-4 border-[#FDE047]">
         
         <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-yellow-200 flex items-center gap-3 text-[11px] font-bold text-[#3C5C1D]">
@@ -97,10 +98,11 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
           </button>
         </div>
 
-        <div className="flex flex-col md:flex-row w-full h-full overflow-y-auto md:overflow-hidden">
+        {/* PHẦN RUỘT: Thêm min-h-0 và flex-1 để nội dung bắt buộc phải cuộn */}
+        <div className="flex flex-col md:flex-row w-full flex-1 overflow-y-auto md:overflow-hidden min-h-0">
           
           {/* CỘT TRÁI */}
-          <div className="w-full md:w-2/5 md:border-r-2 border-[#FDE047] flex flex-col p-6 bg-white/30 md:overflow-y-auto h-fit md:h-full">
+          <div className="w-full md:w-2/5 md:border-r-2 border-[#FDE047] flex flex-col p-6 bg-white/30 h-max md:h-full md:overflow-y-auto">
             <div className="aspect-[3/4] w-full rounded-3xl bg-white/80 overflow-hidden relative shadow-inner border-2 border-[#FDE047] mt-8 md:mt-0 shrink-0">
               {character.portrait ? (
                 <img src={character.portrait} alt={character.name} className="w-full h-full object-cover" />
@@ -110,7 +112,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
             </div>
             
             {(character.googleAiLink || character.googleAiLink2 || character.ggaiLink) && (
-              <div className="mt-6">
+              <div className="mt-6 shrink-0">
                 {character.isLocked && !isUnlocked ? (
                   <div className="flex flex-col gap-2 p-3.5 rounded-2xl bg-red-50 border-2 border-red-200 shadow-inner">
                     <div className="flex items-center gap-2 text-red-600 font-bold justify-center mb-0.5 text-sm">
@@ -157,7 +159,6 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
               </div>
             )}
 
-            {/* BỘ NÚT CHỦ Ổ (EDIT & DELETE) NẰM GỌN GÀNG TẠI ĐÂY */}
             {isAdmin && (
               <div className="flex flex-col gap-2 mt-6 md:mt-4 shrink-0">
                 <button onClick={onEdit} className="py-3 w-full rounded-full border-2 border-[#3C5C1D] text-[#3C5C1D] hover:bg-[#3C5C1D] hover:text-white font-bold transition-colors text-sm shadow-sm">
@@ -173,12 +174,12 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
           </div>
 
           {/* CỘT PHẢI */}
-          <div className="w-full md:w-3/5 flex flex-col p-6 pt-8 md:overflow-y-auto h-fit md:h-full pb-12 md:pb-6">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#3C5C1D] mb-4 drop-shadow-sm">
+          <div className="w-full md:w-3/5 flex flex-col p-6 pt-8 h-max md:h-full md:overflow-y-auto pb-12 md:pb-6">
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#3C5C1D] mb-4 drop-shadow-sm shrink-0">
               {character.name}
             </h2>
             
-            <div className="flex items-center gap-3 mb-6 border-b-2 border-[#FDE047] pb-4">
+            <div className="flex items-center gap-3 mb-6 border-b-2 border-[#FDE047] pb-4 shrink-0">
               <button 
                 onClick={() => setActiveTab('lore')}
                 className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm ${activeTab === 'lore' ? 'bg-[#3C5C1D] text-white scale-105' : 'bg-white/60 text-[#3C5C1D] hover:bg-white'}`}
@@ -198,7 +199,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
 
             {activeTab === 'lore' && (
               <div className="animate-in fade-in duration-300 flex-1">
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-6 shrink-0">
                   {character.tags.map(tag => <span key={tag} className="px-3.5 py-1 rounded-full bg-[#E5EEDF] text-[#3C5C1D] text-xs font-bold shadow-sm">{tag}</span>)}
                   {character.traits.map(trait => <span key={trait} className="px-3.5 py-1 rounded-full bg-[#FDE047] text-[#3C5C1D] text-xs font-bold shadow-sm">{trait}</span>)}
                 </div>
@@ -239,7 +240,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 md:overflow-y-auto pr-1">
+                <div className="flex flex-col gap-3">
                   {feedbacks.map((fb) => (
                     <div key={fb.id} className="bg-white/90 border border-white p-3.5 rounded-xl shadow-sm shrink-0">
                       <div className="flex justify-between items-start mb-1.5">
