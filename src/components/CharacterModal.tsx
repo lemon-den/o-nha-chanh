@@ -13,6 +13,7 @@ interface CharacterModalProps {
   onEdit: () => void;
   isAdmin: boolean;
   onUpdateViews?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function CharacterModal({ character, onClose, onEdit, isAdmin }: CharacterModalProps) {
@@ -161,12 +162,17 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
             )}
 
             {isAdmin && (
-              <button onClick={onEdit} className="mt-6 md:mt-4 py-3 w-full rounded-full border-2 border-[#3C5C1D] text-[#3C5C1D] hover:bg-[#3C5C1D] hover:text-white font-bold transition-colors text-sm shadow-sm shrink-0">
-                Edit Character (Chủ Ổ)
-              </button>
-            )}
-          </div>
-
+              <div className="flex flex-col gap-2 mt-6 md:mt-4 shrink-0">
+                <button onClick={onEdit} className="py-3 w-full rounded-full border-2 border-[#3C5C1D] text-[#3C5C1D] hover:bg-[#3C5C1D] hover:text-white font-bold transition-colors text-sm shadow-sm">
+                  Edit Character (Chủ Ổ)
+                </button>
+                {onDelete && (
+                  <button onClick={() => onDelete(character.id)} className="py-3 w-full rounded-full bg-red-100 border-2 border-red-400 text-red-700 hover:bg-red-500 hover:text-white font-bold transition-colors text-sm shadow-sm">
+                    Xóa Bé Chanh 🗑️
+                  </button>
+                )}
+              </div>
+      
           <div className="w-full md:w-3/5 flex flex-col p-6 pt-8 md:overflow-y-auto h-fit md:h-full pb-12 md:pb-6">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#3C5C1D] mb-4 drop-shadow-sm">
               {character.name}
