@@ -49,8 +49,7 @@ export default function App() {
           <div 
             onClick={handleLogoClick}
             className="flex items-center gap-3 cursor-pointer select-none group"
-            title="Bấm 5 lần liên tiếp ở đây để bật/tắt quyền Chủ Ổ"
-          >
+              >
             <div className={`p-2.5 rounded-full shadow-sm border transition-transform group-hover:scale-105 ${isDark ? 'bg-lime-900 border-lime-700' : 'bg-[#fde047] border-yellow-300'}`}>
               <Citrus className={`w-6 h-6 ${isDark ? 'text-lime-300' : 'text-[#3C5C1D]'}`} />
             </div>
