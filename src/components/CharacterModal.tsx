@@ -4,7 +4,6 @@ import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquar
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import { db } from '../firebase';
-// Tui vừa import thêm doc, updateDoc và increment ở dòng này nè
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
 
 interface CharacterModalProps {
@@ -13,10 +12,10 @@ interface CharacterModalProps {
   onEdit: () => void;
   isAdmin: boolean;
   onUpdateViews?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  onDelete?: (id: string) => void; // Khai báo Props để nhận lệnh Xóa
 }
 
-export default function CharacterModal({ character, onClose, onEdit, isAdmin }: CharacterModalProps) {
+export default function CharacterModal({ character, onClose, onEdit, isAdmin, onDelete }: CharacterModalProps) {
   const [passInput, setPassInput] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(!character.isLocked);
   const [errorMsg, setErrorMsg] = useState('');
@@ -26,11 +25,9 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
 
-  // --- HỆ THỐNG ĐẾM VIEWS & CLICKS THÔNG MINH ---
-  const hasViewedRef = useRef(false); // Dùng ref để đảm bảo chỉ cộng 1 view cho 1 lần mở
+  const hasViewedRef = useRef(false);
 
   useEffect(() => {
-    // Tự động CỘNG 1 VIEW khi cái bảng này vừa hiện lên
     if (!hasViewedRef.current && character.id) {
       const charRef = doc(db, 'characters', character.id);
       updateDoc(charRef, { views: increment(1) }).catch(console.error);
@@ -38,7 +35,6 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
     }
   }, [character.id]);
 
-  // Hàm này sẽ chạy khi người ta bấm vào nút Link
   const handleTrackClick = () => {
     if (character.id) {
       const charRef = doc(db, 'characters', character.id);
@@ -103,6 +99,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
 
         <div className="flex flex-col md:flex-row w-full h-full overflow-y-auto md:overflow-hidden">
           
+          {/* CỘT TRÁI */}
           <div className="w-full md:w-2/5 md:border-r-2 border-[#FDE047] flex flex-col p-6 bg-white/30 md:overflow-y-auto h-fit md:h-full">
             <div className="aspect-[3/4] w-full rounded-3xl bg-white/80 overflow-hidden relative shadow-inner border-2 border-[#FDE047] mt-8 md:mt-0 shrink-0">
               {character.portrait ? (
@@ -140,7 +137,6 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2.5">
-                    {/* Đã thêm onClick={handleTrackClick} vào tất cả các link */}
                     {character.ggaiLink && !character.googleAiLink && (
                       <a href={character.ggaiLink} target="_blank" rel="noreferrer" onClick={handleTrackClick} className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-[#fde047] text-yellow-950 hover:bg-[#facc15] font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
                         <ExternalLink className="w-4 h-4" /> Vào Google AI Studio
@@ -161,6 +157,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
               </div>
             )}
 
+            {/* BỘ NÚT CHỦ Ổ (EDIT & DELETE) NẰM GỌN GÀNG TẠI ĐÂY */}
             {isAdmin && (
               <div className="flex flex-col gap-2 mt-6 md:mt-4 shrink-0">
                 <button onClick={onEdit} className="py-3 w-full rounded-full border-2 border-[#3C5C1D] text-[#3C5C1D] hover:bg-[#3C5C1D] hover:text-white font-bold transition-colors text-sm shadow-sm">
@@ -172,7 +169,10 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
                   </button>
                 )}
               </div>
-      
+            )}
+          </div>
+
+          {/* CỘT PHẢI */}
           <div className="w-full md:w-3/5 flex flex-col p-6 pt-8 md:overflow-y-auto h-fit md:h-full pb-12 md:pb-6">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#3C5C1D] mb-4 drop-shadow-sm">
               {character.name}
