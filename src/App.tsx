@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ViewState } from './types';
 import { useCharacters } from './hooks/useCharacters';
 import LandingPage from './components/LandingPage';
@@ -11,7 +11,7 @@ export default function App() {
   const [view, setView] = useState<ViewState>({ type: 'landing' });
   const [isDark, setIsDark] = useState(false);
   const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('bossChanh') === 'true');
-  const [isMusicOpen, setIsMusicOpen] = useState(false); // Mặc định thu gọn lại cho thoáng điện thoại
+  const [isMusicOpen, setIsMusicOpen] = useState(false);
   
   // Biến đếm số lần click để mở khóa admin bí mật
   const [clickCount, setClickCount] = useState(0);
@@ -50,7 +50,7 @@ export default function App() {
           <div 
             onClick={handleLogoClick}
             className="flex items-center gap-3 cursor-pointer select-none group"
-              >
+          >
             <div className={`p-2.5 rounded-full shadow-sm border transition-transform group-hover:scale-105 ${isDark ? 'bg-lime-900 border-lime-700' : 'bg-[#fde047] border-yellow-300'}`}>
               <Citrus className={`w-6 h-6 ${isDark ? 'text-lime-300' : 'text-[#3C5C1D]'}`} />
             </div>
@@ -73,7 +73,6 @@ export default function App() {
       {/* WIDGET PLAYLIST CHILL - NÉP GÓC THU GỌN THÔNG MINH */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end">
         {isMusicOpen ? (
-          /* TRẠNG THÁI MỞ (HIỆN KHUNG NHẠC) */
           <div className="bg-[#FFF9C4]/95 dark:bg-[#1a241a]/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl border-2 border-[#FDE047] flex flex-col gap-2 w-[210px] sm:w-[240px] animate-in slide-in-from-bottom-4 duration-200">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-1.5">
@@ -99,7 +98,6 @@ export default function App() {
             </div>
           </div>
         ) : (
-          /* TRẠNG THÁI ĐÓNG (HIỆN NÚT NHỎ) */
           <button 
             onClick={() => setIsMusicOpen(true)}
             className="bg-[#FFF9C4] dark:bg-[#1a241a] text-[#3C5C1D] dark:text-lime-300 px-4 py-2.5 rounded-full shadow-lg border-2 border-[#FDE047] flex items-center gap-2 text-xs font-bold hover:scale-105 transition-all"
@@ -107,25 +105,6 @@ export default function App() {
             <Music className="w-4 h-4 animate-pulse" /> Ổ Nhạc Chill 🎶
           </button>
         )}
-      </div>
-        
-        <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-1.5">
-            <Music className="w-3.5 h-3.5 text-[#3C5C1D] dark:text-lime-300 animate-pulse" />
-            <span className="text-[11px] font-bold text-[#3C5C1D] dark:text-lime-200 uppercase tracking-widest">Playlist Chill</span>
-          </div>
-        </div>
-
-        <div className="overflow-hidden rounded-xl border border-yellow-200/60 bg-black/5 shadow-inner">
-          <iframe 
-            width="100%" 
-            height="90" 
-            src="https://www.youtube.com/embed/videoseries?list=PLt3H1oOlIahYgaD1IaTa2fKYGyk2HWDcX&autoplay=1" 
-            title="Playlist Chill" 
-            className="border-0 w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
-        </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
