@@ -120,7 +120,7 @@ export default function CharacterModal({ character, isAdmin, onClose, onEdit }: 
                         if (inputPass === character.password) {
                           setIsUnlocked(true);
                         } else {
-                          alert("Sai mật khẩu rồi Lottie ơi! Xem lại gợi ý kỹ nha.");
+                          alert("Sai mật khẩu rồi! Xem lại gợi ý kỹ nha.");
                         }
                       }}
                       className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-all shadow-sm"
@@ -158,7 +158,7 @@ export default function CharacterModal({ character, isAdmin, onClose, onEdit }: 
             {/* MỤC FEEDBACK / LỜI NHẮN */}
             <div className="pt-4 border-t border-yellow-200 dark:border-lime-900 flex flex-col gap-3">
               <div className="flex items-center gap-2 text-sm font-bold text-[#3C5C1D] dark:text-lime-300">
-                <MessageSquare className="w-4 h-4" /> Feedback & Cảm nhận từ Ổ ({feedbacks.length})
+                <MessageSquare className="w-4 h-4" /> Góc Feedback ({feedbacks.length})
               </div>
 
               {/* Form gửi feedback mới */}
