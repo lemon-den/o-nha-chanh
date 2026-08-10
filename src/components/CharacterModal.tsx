@@ -3,7 +3,8 @@ import { Character } from '../types';
 import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquare, BookOpen, HelpCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase'; // <--- Thêm dòng này
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore'; // <--- Thêm doc, updateDoc, increment
 
 interface CharacterModalProps {
   character: Character;
