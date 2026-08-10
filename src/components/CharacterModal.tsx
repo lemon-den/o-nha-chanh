@@ -25,15 +25,12 @@ const [clickCount, setClickCount] = useState(character.clicks ?? 0);
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
 
-  const viewedCharacterRef = useRef<string | null>(null);
+  const hasViewedRef = useRef(false);
 
 useEffect(() => {
-  if (!character.id) return;
+  if (!character.id || hasViewedRef.current) return;
 
-  const charRef = doc(db, 'characters', character.id);
-
-  useEffect(() => {
-  if (!character.id) return;
+  hasViewedRef.current = true;
 
   const charRef = doc(db, 'characters', character.id);
 
@@ -42,12 +39,10 @@ useEffect(() => {
   }).catch((error) => {
     console.error('Lỗi đếm view:', error);
   });
-
-  setViewCount((prev) => prev + 1);
 }, [character.id]);
-
+  
   const handleTrackClick = async () => {
-     if (!character.id) return;
+  if (!character.id) return;
 
   try {
     const charRef = doc(db, 'characters', character.id);
@@ -55,8 +50,6 @@ useEffect(() => {
     await updateDoc(charRef, {
       clicks: increment(1),
     });
-
-    setClickCount((prev) => prev + 1);
   } catch (error) {
     console.error('Lỗi đếm click:', error);
   }
