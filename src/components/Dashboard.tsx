@@ -8,6 +8,7 @@ interface DashboardProps {
   characters: Character[];
   onCreate: () => void;
   onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
   isAdmin: boolean;
   isDark: boolean;
 }
