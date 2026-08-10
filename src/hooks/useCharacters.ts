@@ -12,17 +12,16 @@ import {
   orderBy 
 } from 'firebase/firestore';
 
-// HÀM "ÉP CÂN" TỰ ĐỘNG: Thu nhỏ và giảm dung lượng ảnh xuống mức tối đa
+// HÀM "ÉP CÂN" TỰ ĐỘNG
 const compressImage = (base64Str: string | undefined): Promise<string | undefined> => {
   return new Promise((resolve) => {
-    // Nếu không có ảnh hoặc không phải ảnh base64 thì bỏ qua
     if (!base64Str || !base64Str.startsWith('data:image')) return resolve(base64Str);
     
     const img = new Image();
     img.src = base64Str;
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 400; // Giới hạn bề ngang avatar 400px là quá nét rồi
+      const MAX_WIDTH = 400; 
       let width = img.width;
       let height = img.height;
 
@@ -36,7 +35,6 @@ const compressImage = (base64Str: string | undefined): Promise<string | undefine
       const ctx = canvas.getContext('2d');
       ctx?.drawImage(img, 0, 0, width, height);
       
-      // Ép ra định dạng JPEG với chất lượng 70% -> Dung lượng chỉ còn vài chục KB
       resolve(canvas.toDataURL('image/jpeg', 0.7)); 
     };
     img.onerror = () => resolve(base64Str);
@@ -62,12 +60,16 @@ export function useCharacters() {
 
   const addCharacter = async (char: Omit<Character, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      // Đưa ảnh qua máy ép cân trước khi lưu
-      const compressedPortrait = await compressImage(char.portrait);
+      // BỘ LỌC THÔNG MINH: Vứt hết các trường undefined trước khi gửi
+      const cleanChar = Object.fromEntries(
+        Object.entries(char).filter(([_, v]) => v !== undefined)
+      );
+
+      const compressedPortrait = await compressImage(cleanChar.portrait as string | undefined);
       
       await addDoc(collection(db, 'characters'), {
-        ...char,
-        portrait: compressedPortrait, // Dùng ảnh đã ép
+        ...cleanChar,
+        ...(compressedPortrait ? { portrait: compressedPortrait } : {}),
         createdAt: Date.now(),
         updatedAt: Date.now(),
         views: 1,
@@ -82,14 +84,21 @@ export function useCharacters() {
 
   const updateCharacter = async (id: string, updates: Partial<Omit<Character, 'id' | 'createdAt' | 'updatedAt'>>) => {
     try {
-      // Ép cân ảnh nếu có cập nhật ảnh mới
-      const compressedPortrait = updates.portrait 
-        ? await compressImage(updates.portrait) 
-        : updates.portrait;
+      if (!id) return;
+
+      // BỘ LỌC THÔNG MINH: Xóa sạch undefined để Firebase không giãy nảy
+      const cleanUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, v]) => v !== undefined)
+      );
+
+      // Ép cân ảnh nếu Chủ Ổ có thay avatar mới lúc edit
+      const compressedPortrait = cleanUpdates.portrait 
+        ? await compressImage(cleanUpdates.portrait as string) 
+        : cleanUpdates.portrait;
 
       const charDocRef = doc(db, 'characters', id);
       await updateDoc(charDocRef, {
-        ...updates,
+        ...cleanUpdates,
         ...(compressedPortrait ? { portrait: compressedPortrait } : {}),
         updatedAt: Date.now()
       });
@@ -101,6 +110,7 @@ export function useCharacters() {
 
   const deleteCharacter = async (id: string) => {
     try {
+      if (!id) return;
       await deleteDoc(doc(db, 'characters', id));
     } catch (error) {
       console.error("Lỗi khi xóa bé chanh: ", error);
