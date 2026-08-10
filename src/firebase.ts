@@ -11,8 +11,5 @@ const firebaseConfig = {
   measurementId: "G-JNTQYME8N6"
 };
 
-// Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
-
-// Xuất db ra để file useCharacters.ts có thể xài được
 export const db = getFirestore(app);
