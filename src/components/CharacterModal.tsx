@@ -1,233 +1,251 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Character } from '../types';
-import { X, Lock, HelpCircle, Edit, MessageSquare, Send, BookOpen } from 'lucide-react';
+import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquare, BookOpen, HelpCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
+import { db } from '../firebase';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 
 interface CharacterModalProps {
   character: Character;
-  isAdmin: boolean;
   onClose: () => void;
   onEdit: () => void;
+  isAdmin: boolean;
+  onUpdateViews?: (id: string) => void;
 }
 
-export default function CharacterModal({ character, isAdmin, onClose, onEdit }: CharacterModalProps) {
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [inputPass, setInputPass] = useState('');
+export default function CharacterModal({ character, onClose, onEdit, isAdmin }: CharacterModalProps) {
+  const [passInput, setPassInput] = useState('');
+  const [isUnlocked, setIsUnlocked] = useState(!character.isLocked);
+  const [errorMsg, setErrorMsg] = useState('');
+  
+  // Quản lý Tab: 'lore' (Cốt truyện) hoặc 'feedback' (Góp ý)
+  const [activeTab, setActiveTab] = useState<'lore' | 'feedback'>('lore');
 
-  // State quản lý Tab bên phải ('story' hoặc 'feedback')
-  const [activeTab, setActiveTab] = useState<'story' | 'feedback'>('story');
+  // --- HỆ THỐNG FEEDBACK FIREBASE REAL-TIME ---
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [nickname, setNickname] = useState('');
+  const [content, setContent] = useState('');
 
-  // State cho Feedback
-  const [feedbacks, setFeedbacks] = useState<string[]>(character.feedbacks || []);
-  const [newFeedback, setNewFeedback] = useState('');
+  useEffect(() => {
+    const q = query(collection(db, `feedbacks_${character.id}`), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fbData = snapshot.docs.map(doc => ({
+        id: doc.id, ...doc.data()
+      }));
+      setFeedbacks(fbData);
+    });
+    return () => unsubscribe();
+  }, [character.id]);
 
-  const handleAddFeedback = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newFeedback.trim()) return;
-    const updated = [newFeedback.trim(), ...feedbacks];
-    setFeedbacks(updated);
-    character.feedbacks = updated;
-    setNewFeedback('');
+  const handleSendFeedback = async () => {
+    if (content.length < 3) {
+      alert("Feedback ngắn quá! Viết ít nhất 3 ký tự nha Chủ Ổ ơi.");
+      return;
+    }
+    try {
+      await addDoc(collection(db, `feedbacks_${character.id}`), {
+        nickname: nickname.trim() || 'Ẩn danh',
+        content: content,
+        date: new Date().toLocaleDateString('vi-VN'),
+        createdAt: serverTimestamp()
+      });
+      setContent('');
+      setNickname('');
+    } catch (error) {
+      alert("Lỗi mạng rồi, không gửi được feedback!");
+    }
+  };
+
+  const handleUnlock = () => {
+    if (passInput === character.password) {
+      setIsUnlocked(true);
+      setErrorMsg('');
+    } else {
+      setErrorMsg('Sai mật khẩu rồi! Trượt rồi nha~');
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-[#FFF9C4] dark:bg-[#1a201c] rounded-[2.5rem] shadow-2xl border-4 border-[#FDE047] dark:border-lime-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 md:p-8 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      
+      <div className="relative w-full max-w-5xl max-h-[90vh] bg-[#FFF9C4] rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border-4 border-[#FDE047]">
         
-        {/* Nút đóng */}
-        <button 
-          onClick={onClose} 
-          className="absolute top-6 right-6 p-2 rounded-full bg-white/60 dark:bg-black/40 hover:bg-white text-[#3C5C1D] dark:text-lime-300 transition-colors shadow-sm z-10"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {/* NÚT X & VIEW/CLICK THÔNG MINH Ở GÓC TRÊN */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
+          <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-yellow-200 flex items-center gap-3 text-[11px] font-bold text-[#3C5C1D]">
+            <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5"/> {character.views || 1} views</span>
+            <span className="flex items-center gap-1"><MousePointerClick className="w-3.5 h-3.5"/> {character.clicks || 0} clicks</span>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-full bg-white/80 hover:bg-white text-[#3C5C1D] transition-colors shadow-sm border border-yellow-200">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-        <div className="flex flex-col md:flex-row gap-8">
-          
-          {/* CỘT TRÁI: ẢNH + GIẢI PASS / LINK GOOGLE AI + NÚT EDIT */}
-          <div className="w-full md:w-1/3 shrink-0 flex flex-col gap-4">
-            <div className="aspect-[3/4] w-full rounded-3xl overflow-hidden shadow-md border-2 border-yellow-200 dark:border-lime-900">
-              <img src={character.portrait} alt={character.name} className="w-full h-full object-cover" />
-            </div>
-
-            {/* PHẦN GIẢI PASS & LINK GOOGLE AI DỜI QUA TRÁI */}
-            <div className="bg-white/40 dark:bg-black/20 p-4 rounded-2xl border border-yellow-200/60 dark:border-lime-900 flex flex-col gap-3">
-              {character.isLocked && !isUnlocked ? (
-                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex flex-col gap-2">
-                  <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400 font-bold text-xs">
-                    <Lock className="w-3.5 h-3.5" /> Khóa Link Google AI
-                  </div>
-                  
-                  {character.passwordHint && (
-                    <p className="flex items-center gap-1 text-[11px] text-stone-600 dark:text-stone-300 italic font-medium">
-                      <HelpCircle className="w-3 h-3 text-amber-500 shrink-0" /> <b>Gợi ý:</b> {character.passwordHint}
-                    </p>
-                  )}
-
-                  <div className="flex flex-col gap-2 mt-1">
-                    <input 
-                      type="password" 
-                      placeholder="Nhập mật khẩu..." 
-                      value={inputPass}
-                      onChange={(e) => setInputPass(e.target.value)}
-                      className="px-3 py-1.5 rounded-lg border border-red-300 bg-white text-stone-800 text-xs focus:outline-none shadow-inner"
-                    />
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        if (inputPass === character.password) {
-                          setIsUnlocked(true);
-                        } else {
-                          alert("Sai mật khẩu rồi Lottie ơi! Xem lại gợi ý kỹ nha.");
-                        }
-                      }}
-                      className="py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold text-xs transition-all shadow-sm"
-                    >
-                      Mở khóa
-                    </button>
-                  </div>
-                </div>
+        {/* Cột trái: Ảnh & Cụm Link GG AI (Hỗ trợ 2 link riêng biệt + Khóa mật khẩu & Gợi ý) */}
+        <div className="w-full md:w-2/5 md:border-r-2 border-[#FDE047] flex flex-col p-6 bg-white/30 justify-between">
+          <div>
+            <div className="aspect-[3/4] w-full rounded-3xl bg-white/80 overflow-hidden relative shadow-inner border-2 border-[#FDE047] mt-8 md:mt-0">
+              {character.portrait ? (
+                <img src={character.portrait} alt={character.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="flex flex-col gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#3C5C1D] dark:text-lime-300">Trải nghiệm Google AI:</span>
-                  {character.googleAiLink && (
-                    <a 
-                      href={character.googleAiLink} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="px-4 py-2 rounded-xl bg-[#3C5C1D] text-white hover:bg-lime-800 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      🔗 {character.googleAiLabel || 'Google AI Link 1'}
-                    </a>
-                  )}
-                  {character.googleAiLink2 && (
-                    <a 
-                      href={character.googleAiLink2} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="px-4 py-2 rounded-xl bg-lime-700 text-white hover:bg-lime-900 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      🔗 {character.googleAiLabel2 || 'Google AI Link 2'}
-                    </a>
-                  )}
-                  {!character.googleAiLink && !character.googleAiLink2 && (
-                    <p className="text-xs text-stone-500 italic text-center">Chưa có link nào được cập nhật.</p>
-                  )}
-                </div>
+                <div className="absolute inset-0 flex items-center justify-center text-[#3C5C1D]/30"><User className="w-24 h-24 opacity-40" /></div>
               )}
             </div>
+            
+            {/* KHU VỰC LINK GOOGLE AI VÀ KHÓA MẬT KHẨU */}
+            {(character.googleAiLink || character.googleAiLink2 || character.ggaiLink) && (
+              <div className="mt-6">
+                {character.isLocked && !isUnlocked ? (
+                  <div className="flex flex-col gap-2 p-3.5 rounded-2xl bg-red-50 border-2 border-red-200 shadow-inner">
+                    <div className="flex items-center gap-2 text-red-600 font-bold justify-center mb-0.5 text-sm">
+                      <Lock className="w-4 h-4" /> Bị niêm phong mật khẩu
+                    </div>
+                    
+                    {/* HIỂN THỊ GỢI Ý MẬT KHẨU */}
+                    {character.passwordHint && (
+                      <p className="flex items-center gap-1.5 text-xs text-stone-600 italic font-medium justify-center">
+                        <HelpCircle className="w-3.5 h-3.5 text-amber-500 shrink-0" /> <b>Gợi ý:</b> {character.passwordHint}
+                      </p>
+                    )}
 
-            {/* Nút Edit cho Chủ Ổ */}
-            {isAdmin && (
-              <button
-                onClick={onEdit}
-                className="py-2.5 w-full rounded-full border-2 border-[#3C5C1D] text-[#3C5C1D] hover:bg-[#3C5C1D] hover:text-white font-bold transition-colors text-xs flex items-center justify-center gap-2 shadow-sm bg-white/50 dark:bg-black/20"
-              >
-                <Edit className="w-3.5 h-3.5" /> Edit Character (Chủ Ổ)
-              </button>
+                    <input 
+                      type="password" 
+                      placeholder="Nhập pass mở link..." 
+                      value={passInput} 
+                      onChange={(e) => setPassInput(e.target.value)} 
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-yellow-300 bg-white text-center font-bold text-sm focus:outline-none focus:border-lime-500 shadow-inner" 
+                    />
+                    {errorMsg && <p className="text-red-500 text-xs text-center font-medium">{errorMsg}</p>}
+                    <button onClick={handleUnlock} className="w-full py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-colors shadow-sm">
+                      Mở Khóa Link
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2.5">
+                    {/* Link cũ tương thích ngược */}
+                    {character.ggaiLink && !character.googleAiLink && (
+                      <a href={character.ggaiLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-[#fde047] text-yellow-950 hover:bg-[#facc15] font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
+                        <ExternalLink className="w-4 h-4" /> Vào Google AI Studio
+                      </a>
+                    )}
+                    {/* Link 1 mới */}
+                    {character.googleAiLink && (
+                      <a href={character.googleAiLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-[#3C5C1D] text-white hover:bg-lime-800 font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
+                        <ExternalLink className="w-4 h-4" /> {character.googleAiLabel || 'Google AI Link 1'}
+                      </a>
+                    )}
+                    {/* Link 2 mới */}
+                    {character.googleAiLink2 && (
+                      <a href={character.googleAiLink2} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-lime-700 text-white hover:bg-lime-900 font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
+                        <ExternalLink className="w-4 h-4" /> {character.googleAiLabel2 || 'Google AI Link 2'}
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          {/* CỘT PHẢI: TÊN, TAGS VÀ TAB CHUYỂN ĐỔI (CỐT TRUYỆN <-> FEEDBACK) */}
-          <div className="w-full md:w-2/3 flex flex-col gap-4">
-            <div>
-              <h2 className="text-3xl font-serif font-bold text-[#3C5C1D] dark:text-lime-300 mb-2">
-                {character.name}
-              </h2>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {character.tags.map(tag => (
-                  <span key={tag} className="px-3 py-1 rounded-full text-xs font-bold bg-[#FDE047]/60 dark:bg-lime-900/60 text-[#3C5C1D] dark:text-lime-200">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Traits */}
-              <div className="flex flex-wrap gap-1.5">
-                {character.traits.map(trait => (
-                  <span key={trait} className="px-2.5 py-0.5 rounded-md text-xs font-medium bg-black/5 dark:bg-white/5 text-stone-600 dark:text-stone-300">
-                    #{trait}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* HỆ THỐNG TAB CHUYỂN ĐỔI (CỐT TRUYỆN / FEEDBACK) */}
-            <div className="flex rounded-2xl bg-black/10 dark:bg-black/40 p-1 border border-yellow-200/50 dark:border-lime-900/40">
-              <button
-                type="button"
-                onClick={() => setActiveTab('story')}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                  activeTab === 'story'
-                    ? 'bg-[#3C5C1D] text-white shadow-sm'
-                    : 'text-[#3C5C1D] dark:text-lime-300 hover:bg-white/40 dark:hover:bg-white/5'
-                }`}
-              >
-                <BookOpen className="w-3.5 h-3.5" /> Cốt truyện
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => setActiveTab('feedback')}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                  activeTab === 'feedback'
-                    ? 'bg-[#3C5C1D] text-white shadow-sm'
-                    : 'text-[#3C5C1D] dark:text-lime-300 hover:bg-white/40 dark:hover:bg-white/5'
-                }`}
-              >
-                <MessageSquare className="w-3.5 h-3.5" /> Góc Feedback ({feedbacks.length})
-              </button>
-            </div>
-
-            {/* NỘI DUNG HIỂN THỊ THEO TAB */}
-            <div className="flex-1 min-h-[250px]">
-              {activeTab === 'story' ? (
-                /* TAB 1: CỐT TRUYỆN */
-                <div className="prose dark:prose-invert max-w-none text-stone-700 dark:text-stone-300 text-sm bg-white/50 dark:bg-black/20 p-5 rounded-2xl border border-yellow-200/50 dark:border-lime-900/40 max-h-[350px] overflow-y-auto">
-                  <ReactMarkdown remarkPlugins={[remarkBreaks]}>
-                    {character.biography}
-                  </ReactMarkdown>
-                </div>
-              ) : (
-                /* TAB 2: FEEDBACK */
-                <div className="flex flex-col gap-3 bg-white/50 dark:bg-black/20 p-5 rounded-2xl border border-yellow-200/50 dark:border-lime-900/40 max-h-[350px] overflow-y-auto">
-                  <form onSubmit={handleAddFeedback} className="flex gap-2">
-                    <input 
-                      type="text"
-                      placeholder="Để lại feedback hoặc cảm nhận về bé này..."
-                      value={newFeedback}
-                      onChange={(e) => setNewFeedback(e.target.value)}
-                      className="px-4 py-2 rounded-xl border border-yellow-300 dark:border-lime-800 bg-white dark:bg-stone-900 text-xs flex-1 focus:outline-none text-stone-800 dark:text-stone-100 shadow-inner"
-                    />
-                    <button 
-                      type="submit"
-                      className="px-4 py-2 rounded-xl bg-[#3C5C1D] text-white hover:bg-lime-800 text-xs font-bold transition-all flex items-center gap-1 shadow-sm shrink-0"
-                    >
-                      <Send className="w-3 h-3" /> Gửi
-                    </button>
-                  </form>
-
-                  <div className="flex flex-col gap-2 mt-1">
-                    {feedbacks.length === 0 ? (
-                      <p className="text-xs text-stone-500 dark:text-stone-400 italic text-center py-6">Chưa có feedback nào. Hãy là người đầu tiên để lại lời nhắn!</p>
-                    ) : (
-                      feedbacks.map((fb, index) => (
-                        <div key={index} className="p-3 rounded-xl bg-white dark:bg-black/40 text-xs text-stone-700 dark:text-stone-300 border border-yellow-200/40 dark:border-lime-900/40 shadow-sm">
-                          {fb}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-          </div>
+          {isAdmin && (
+            <button onClick={onEdit} className="mt-4 py-3 w-full rounded-full border-2 border-[#3C5C1D] text-[#3C5C1D] hover:bg-[#3C5C1D] hover:text-white font-bold transition-colors text-sm shadow-sm">
+              Edit Character (Chủ Ổ)
+            </button>
+          )}
         </div>
 
+        {/* Cột phải: HỆ THỐNG TAB (Chuyển đổi mượt giữa LORE và FEEDBACK) */}
+        <div className="w-full md:w-3/5 overflow-y-auto flex flex-col p-8 pt-16 md:pt-8">
+          
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#3C5C1D] mb-4 drop-shadow-sm">
+            {character.name}
+          </h2>
+          
+          {/* THANH CHUYỂN TAB (LORE / FEEDBACK) */}
+          <div className="flex items-center gap-3 mb-6 border-b-2 border-[#FDE047] pb-4">
+            <button 
+              onClick={() => setActiveTab('lore')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm ${activeTab === 'lore' ? 'bg-[#3C5C1D] text-white scale-105' : 'bg-white/60 text-[#3C5C1D] hover:bg-white'}`}
+            >
+              <BookOpen className="w-4 h-4" /> Cốt Truyện (Lore)
+            </button>
+            <button 
+              onClick={() => setActiveTab('feedback')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm relative ${activeTab === 'feedback' ? 'bg-[#3C5C1D] text-white scale-105' : 'bg-white/60 text-[#3C5C1D] hover:bg-white'}`}
+            >
+              <MessageSquare className="w-4 h-4" /> Góc Góp Ý 
+              <span className="bg-[#FDE047] text-[#3C5C1D] px-2 py-0.5 rounded-full text-xs font-bold ml-1">
+                {feedbacks.length}
+              </span>
+            </button>
+          </div>
+
+          {/* NỘI DUNG TAB 1: CỐT TRUYỆN (Hỗ trợ remark-breaks xuống dòng khi bấm Enter) */}
+          {activeTab === 'lore' && (
+            <div className="animate-in fade-in duration-300 flex-1">
+              <div className="flex flex-wrap gap-2 mb-6">
+                {character.tags.map(tag => <span key={tag} className="px-3.5 py-1 rounded-full bg-[#E5EEDF] text-[#3C5C1D] text-xs font-bold shadow-sm">{tag}</span>)}
+                {character.traits.map(trait => <span key={trait} className="px-3.5 py-1 rounded-full bg-[#FDE047] text-[#3C5C1D] text-xs font-bold shadow-sm">{trait}</span>)}
+              </div>
+
+              {character.biography ? (
+                <div className="markdown-body max-w-none [&_p]:!text-stone-800 [&_h1]:!text-[#3C5C1D] text-sm leading-relaxed">
+                  <ReactMarkdown remarkPlugins={[remarkBreaks]}>{character.biography}</ReactMarkdown>
+                </div>
+              ) : (
+                <p className="text-[#3C5C1D]/70 italic text-sm">Chưa có cốt truyện nào được viết cho bé chanh này.</p>
+              )}
+            </div>
+          )}
+
+          {/* NỘI DUNG TAB 2: FEEDBACK ẨN DANH */}
+          {activeTab === 'feedback' && (
+            <div className="animate-in fade-in duration-300 flex-1 flex flex-col">
+              <div className="bg-[#E5EEDF] p-5 rounded-2xl border border-[#3C5C1D]/20 mb-6 shadow-inner">
+                <input 
+                  type="text" 
+                  placeholder="Nickname của bạn (tuỳ chọn)..." 
+                  value={nickname} 
+                  onChange={(e) => setNickname(e.target.value)} 
+                  className="w-full bg-white border border-yellow-200 rounded-xl px-4 py-2.5 text-xs font-medium text-stone-800 focus:outline-none focus:border-lime-500 mb-3 shadow-sm" 
+                />
+                <div className="relative">
+                  <textarea 
+                    placeholder="Gửi lời tâm tình, cảm nhận về bé chanh này..." 
+                    maxLength={500} 
+                    value={content} 
+                    onChange={(e) => setContent(e.target.value)} 
+                    className="w-full bg-white border border-yellow-200 rounded-xl px-4 py-2.5 min-h-[90px] text-xs text-stone-800 focus:outline-none shadow-sm resize-y pb-9" 
+                  />
+                  <div className="absolute bottom-2.5 right-3 flex items-center gap-3">
+                    <span className="text-[10px] text-stone-400 font-medium">{content.length}/500</span>
+                    <button onClick={handleSendFeedback} className="bg-[#dca484] hover:bg-[#c28e70] text-white px-4 py-1.5 rounded-full text-xs font-bold transition-colors flex items-center gap-1.5 shadow-sm">
+                      Gửi <Send className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Danh sách góp ý cuộn mượt */}
+              <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
+                {feedbacks.map((fb) => (
+                  <div key={fb.id} className="bg-white/90 border border-white p-3.5 rounded-xl shadow-sm">
+                    <div className="flex justify-between items-start mb-1.5">
+                      <span className="font-bold text-[#b45c61] text-xs">{fb.nickname}</span>
+                      <span className="text-[10px] text-stone-400 font-medium">{fb.date}</span>
+                    </div>
+                    <p className="text-xs text-stone-700 whitespace-pre-wrap leading-relaxed">{fb.content}</p>
+                  </div>
+                ))}
+                {feedbacks.length === 0 && (
+                  <p className="text-center text-xs text-stone-500 italic py-6">Chưa có feedback nào. Hãy là người đầu tiên bóc tem nhé!</p>
+                )}
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   );
