@@ -9,7 +9,8 @@ import {
   doc, 
   deleteDoc, 
   query, 
-  orderBy 
+  orderBy,
+  getDocs 
 } from 'firebase/firestore';
 
 export function useCharacters() {
@@ -17,42 +18,44 @@ export function useCharacters() {
 
   useEffect(() => {
     const q = query(collection(db, 'characters'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
+    
+    // Kiểm tra và tự động đẩy dữ liệu từ LocalStorage lên Firebase nếu Firebase đang trống
+    const checkAndSyncLocalData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'characters'));
+        if (querySnapshot.empty) {
+          const localSaved = localStorage.getItem('rp-characters');
+          if (localSaved) {
+            const oldChars = JSON.parse(localSaved);
+            if (Array.isArray(oldChars) && oldChars.length > 0) {
+              console.log(`Đang tự động đẩy ${oldChars.length} bé chanh cũ lên Firebase...`);
+              for (const c of oldChars) {
+                const { id, ...data } = c;
+                await addDoc(collection(db, 'characters'), {
+                  ...data,
+                  createdAt: data.createdAt || Date.now(),
+                  updatedAt: data.updatedAt || Date.now(),
+                  views: data.views || 1,
+                  clicks: data.clicks || 0,
+                  feedbacks: data.feedbacks || []
+                });
+              }
+              console.log("Đẩy dữ liệu cũ lên mây thành công!");
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi đồng bộ dữ liệu cũ:", err);
+      }
+    };
+
+    checkAndSyncLocalData();
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const charData = snapshot.docs.map(docSnap => ({
         id: docSnap.id,
         ...docSnap.data()
       })) as Character[];
-
-      // TỰ ĐỘNG ĐỒNG BỘ: Nếu trên mây chưa có gì nhưng máy tính (localStorage) đang có dữ liệu cũ
-      if (charData.length === 0) {
-        const localSaved = localStorage.getItem('rp-characters');
-        if (localSaved) {
-          try {
-            const oldChars = JSON.parse(localSaved);
-            if (Array.isArray(oldChars) && oldChars.length > 0) {
-              console.log(`Phát hiện ${oldChars.length} bé chanh cũ trong máy. Đang tự động đưa lên Firebase...`);
-              for (const c of oldChars) {
-                // Lọc bỏ id cũ để Firebase tự tạo ID mới, tránh lỗi xung đột
-                const { id, ...charWithoutId } = c;
-                await addDoc(collection(db, 'characters'), {
-                  ...charWithoutId,
-                  createdAt: charWithoutId.createdAt || Date.now(),
-                  updatedAt: charWithoutId.updatedAt || Date.now(),
-                  views: charWithoutId.views || 1,
-                  clicks: charWithoutId.clicks || 0,
-                  feedbacks: charWithoutId.feedbacks || []
-                });
-              }
-              console.log("Đồng bộ dữ liệu cũ lên mây thành công!");
-              // Xóa localStorage cũ để không lặp lại lần sau
-              localStorage.removeItem('rp-characters');
-            }
-          } catch (e) {
-            console.error("Lỗi khi tự động đồng bộ:", e);
-          }
-        }
-      }
-
       setCharacters(charData);
     }, (error) => {
       console.error("Lỗi tải danh sách nhân vật từ Firebase: ", error);
