@@ -13,6 +13,7 @@ export interface Character {
   updatedAt: number;
   isLocked?: boolean;     // Có khóa pass hay không?
   password?: string;      // Mật khẩu là gì?
+  passwordHint?: string;
 }
 
 export type ViewState = 
