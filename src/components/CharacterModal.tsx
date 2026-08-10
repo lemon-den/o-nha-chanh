@@ -11,7 +11,6 @@ interface CharacterModalProps {
   onClose: () => void;
   onEdit: () => void;
   isAdmin: boolean;
-  onUpdateViews?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
 
@@ -25,6 +24,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
 
+  // --- CƠ CHẾ ĐẾM VIEW TỰ ĐỘNG KHI MỞ MODAL ---
   const hasViewedRef = useRef(false);
 
   useEffect(() => {
@@ -35,10 +35,15 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
     }
   }, [character.id]);
 
-  const handleTrackClick = () => {
+  // --- CƠ CHẾ ĐẾM CLICK KHI BẤM LINK GOOGLE AI ---
+  const handleTrackClick = async () => {
     if (character.id) {
-      const charRef = doc(db, 'characters', character.id);
-      updateDoc(charRef, { clicks: increment(1) }).catch(console.error);
+      try {
+        const charRef = doc(db, 'characters', character.id);
+        await updateDoc(charRef, { clicks: increment(1) });
+      } catch (error) {
+        console.error("Lỗi đếm click: ", error);
+      }
     }
   };
 
