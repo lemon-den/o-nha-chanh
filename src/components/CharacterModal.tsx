@@ -95,26 +95,68 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
             </div>
             
             {character.ggaiLink && (
-              <div className="mt-6">
-                {!isUnlocked ? (
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2 text-red-600 font-bold justify-center mb-1 text-sm">
-                      <Lock className="w-4 h-4" /> Bị niêm phong mật khẩu
-                    </div>
-                    <input type="password" placeholder="Nhập pass mở link..." value={passInput} onChange={(e) => setPassInput(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border-2 border-yellow-300 bg-white text-center font-bold text-sm focus:outline-none focus:border-lime-500 shadow-inner" />
-                    {errorMsg && <p className="text-red-500 text-xs text-center font-medium">{errorMsg}</p>}
-                    <button onClick={handleUnlock} className="w-full py-2.5 rounded-xl bg-lime-600 hover:bg-lime-700 text-white font-bold text-sm transition-colors shadow-sm">
-                      Mở Khóa Link
-                    </button>
-                  </div>
-                ) : (
-                  <a href={character.ggaiLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-full bg-[#fde047] text-yellow-950 hover:bg-[#facc15] font-bold transition-all shadow-md hover:-translate-y-0.5">
-                    <ExternalLink className="w-4 h-4" /> Vào Google AI Studio
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
+              <div className="mt-6 pt-6 border-t border-yellow-200 dark:border-lime-900">
+    {character.isLocked && !isUnlocked ? (
+      <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/30 border-2 border-red-200 dark:border-red-900 flex flex-col gap-3">
+        <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm">
+          <Lock className="w-4 h-4" /> Bé này đang khóa link Google AI!
+        </div>
+        
+        {/* HIỂN THỊ GỢI Ý MẬT KHẨU */}
+        {character.passwordHint && (
+          <p className="flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-300 italic font-medium">
+            <HelpCircle className="w-3.5 h-3.5 text-amber-500" /> <b>Gợi ý pass:</b> {character.passwordHint}
+          </p>
+        )}
+
+        <div className="flex gap-2">
+          <input 
+            type="password" 
+            placeholder="Nhập mật khẩu..." 
+            value={inputPass}
+            onChange={(e) => setInputPass(e.target.value)}
+            className="px-3 py-2 rounded-xl border border-red-300 bg-white text-stone-800 text-sm flex-1 focus:outline-none shadow-inner"
+          />
+          <button 
+            type="button"
+            onClick={() => {
+              if (inputPass === character.password) {
+                setIsUnlocked(true);
+              } else {
+                alert("Sai mật khẩu rồi Lottie ơi! Xem lại gợi ý kỹ nha.");
+              }
+            }}
+            className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-all shadow-sm"
+          >
+            Mở khóa
+          </button>
+        </div>
+      </div>
+    ) : (
+      <div className="flex flex-wrap gap-3">
+        {character.googleAiLink && (
+          <a 
+            href={character.googleAiLink} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="px-5 py-2.5 rounded-xl bg-[#3C5C1D] text-white hover:bg-lime-800 text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:scale-105"
+          >
+            🔗 {character.googleAiLabel || 'Google AI Link 1'}
+          </a>
+        )}
+        {character.googleAiLink2 && (
+          <a 
+            href={character.googleAiLink2} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="px-5 py-2.5 rounded-xl bg-lime-700 text-white hover:bg-lime-900 text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:scale-105"
+          >
+            🔗 {character.googleAiLabel2 || 'Google AI Link 2'}
+          </a>
+        )}
+      </div>
+    )}
+  </div>
 
           {isAdmin && (
             <button onClick={onEdit} className="mt-4 py-3 w-full rounded-full border-2 border-[#3C5C1D] text-[#3C5C1D] hover:bg-[#3C5C1D] hover:text-white font-bold transition-colors text-sm">
@@ -158,11 +200,11 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
               </div>
 
               {character.biography ? (
-                <div className="markdown-body max-w-none [&_p]:!text-stone-800 [&_h1]:!text-[#3C5C1D] text-sm leading-relaxed">
-                  <ReactMarkdown remarkPlugins={[remarkBreaks]}>
-  {character.biography}
-</ReactMarkdown>
-                </div>
+                <div className="prose dark:prose-invert max-w-none text-stone-700 dark:text-stone-300 text-sm">
+  <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+    {character.biography}
+  </ReactMarkdown>
+</div>
               ) : (
                 <p className="text-[#3C5C1D]/70 italic text-sm">Chưa có cốt truyện nào được viết cho bé chanh này.</p>
               )}
