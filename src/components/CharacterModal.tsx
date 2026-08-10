@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Character } from '../types';
 import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquare, BookOpen, HelpCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import { db } from '../firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
+// Tui vừa import thêm doc, updateDoc và increment ở dòng này nè
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
 
 interface CharacterModalProps {
   character: Character;
@@ -18,20 +19,37 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
   const [passInput, setPassInput] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(!character.isLocked);
   const [errorMsg, setErrorMsg] = useState('');
-  
-  // Quản lý Tab: 'lore' (Cốt truyện) hoặc 'feedback' (Góp ý)
   const [activeTab, setActiveTab] = useState<'lore' | 'feedback'>('lore');
 
-  // --- HỆ THỐNG FEEDBACK FIREBASE REAL-TIME ---
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
 
+  // --- HỆ THỐNG ĐẾM VIEWS & CLICKS THÔNG MINH ---
+  const hasViewedRef = useRef(false); // Dùng ref để đảm bảo chỉ cộng 1 view cho 1 lần mở
+
+  useEffect(() => {
+    // Tự động CỘNG 1 VIEW khi cái bảng này vừa hiện lên
+    if (!hasViewedRef.current && character.id) {
+      const charRef = doc(db, 'characters', character.id);
+      updateDoc(charRef, { views: increment(1) }).catch(console.error);
+      hasViewedRef.current = true;
+    }
+  }, [character.id]);
+
+  // Hàm này sẽ chạy khi người ta bấm vào nút Link
+  const handleTrackClick = () => {
+    if (character.id) {
+      const charRef = doc(db, 'characters', character.id);
+      updateDoc(charRef, { clicks: increment(1) }).catch(console.error);
+    }
+  };
+
   useEffect(() => {
     const q = query(collection(db, `feedbacks_${character.id}`), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fbData = snapshot.docs.map(doc => ({
-        id: doc.id, ...doc.data()
+      const fbData = snapshot.docs.map(docSnap => ({
+        id: docSnap.id, ...docSnap.data()
       }));
       setFeedbacks(fbData);
     });
@@ -40,7 +58,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
 
   const handleSendFeedback = async () => {
     if (content.length < 3) {
-      alert("Feedback ngắn quá! Viết ít nhất 3 ký tự nha.");
+      alert("Feedback ngắn quá! Viết ít nhất 3 ký tự nha Chủ Ổ ơi.");
       return;
     }
     try {
@@ -70,13 +88,11 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      {/* VỎ NGOÀI: Giới hạn chiều cao max 90vh, cắt viền cho gọn */}
       <div className="relative w-full max-w-5xl h-auto max-h-[90vh] bg-[#FFF9C4] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border-4 border-[#FDE047]">
         
-        {/* NÚT X & VIEW/CLICK THÔNG MINH - Dán chặt góc trên cùng, không bao giờ bị cuộn mất */}
         <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-yellow-200 flex items-center gap-3 text-[11px] font-bold text-[#3C5C1D]">
-            <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5"/> {character.views || 1} views</span>
+            <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5"/> {character.views || 0} views</span>
             <span className="flex items-center gap-1"><MousePointerClick className="w-3.5 h-3.5"/> {character.clicks || 0} clicks</span>
           </div>
           <button onClick={onClose} className="p-2 rounded-full bg-white/80 hover:bg-white text-[#3C5C1D] transition-colors shadow-sm border border-yellow-200">
@@ -84,10 +100,8 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
           </button>
         </div>
 
-        {/* PHẦN RUỘT: Trên điện thoại sẽ cuộn chung dọc, trên máy tính cuộn riêng 2 bên */}
         <div className="flex flex-col md:flex-row w-full h-full overflow-y-auto md:overflow-hidden">
           
-          {/* CỘT TRÁI: Ảnh, Link GG AI, Khóa mật khẩu */}
           <div className="w-full md:w-2/5 md:border-r-2 border-[#FDE047] flex flex-col p-6 bg-white/30 md:overflow-y-auto h-fit md:h-full">
             <div className="aspect-[3/4] w-full rounded-3xl bg-white/80 overflow-hidden relative shadow-inner border-2 border-[#FDE047] mt-8 md:mt-0 shrink-0">
               {character.portrait ? (
@@ -97,13 +111,12 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
               )}
             </div>
             
-            {/* KHU VỰC LINK GOOGLE AI VÀ KHÓA MẬT KHẨU */}
             {(character.googleAiLink || character.googleAiLink2 || character.ggaiLink) && (
               <div className="mt-6">
                 {character.isLocked && !isUnlocked ? (
                   <div className="flex flex-col gap-2 p-3.5 rounded-2xl bg-red-50 border-2 border-red-200 shadow-inner">
                     <div className="flex items-center gap-2 text-red-600 font-bold justify-center mb-0.5 text-sm">
-                      <Lock className="w-4 h-4" /> Đã khóa
+                      <Lock className="w-4 h-4" /> Bị niêm phong mật khẩu
                     </div>
                     
                     {character.passwordHint && (
@@ -126,18 +139,19 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2.5">
+                    {/* Đã thêm onClick={handleTrackClick} vào tất cả các link */}
                     {character.ggaiLink && !character.googleAiLink && (
-                      <a href={character.ggaiLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-[#fde047] text-yellow-950 hover:bg-[#facc15] font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
+                      <a href={character.ggaiLink} target="_blank" rel="noreferrer" onClick={handleTrackClick} className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-[#fde047] text-yellow-950 hover:bg-[#facc15] font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
                         <ExternalLink className="w-4 h-4" /> Vào Google AI Studio
                       </a>
                     )}
                     {character.googleAiLink && (
-                      <a href={character.googleAiLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-[#3C5C1D] text-white hover:bg-lime-800 font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
+                      <a href={character.googleAiLink} target="_blank" rel="noreferrer" onClick={handleTrackClick} className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-[#3C5C1D] text-white hover:bg-lime-800 font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
                         <ExternalLink className="w-4 h-4" /> {character.googleAiLabel || 'Google AI Link 1'}
                       </a>
                     )}
                     {character.googleAiLink2 && (
-                      <a href={character.googleAiLink2} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-lime-700 text-white hover:bg-lime-900 font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
+                      <a href={character.googleAiLink2} target="_blank" rel="noreferrer" onClick={handleTrackClick} className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full bg-lime-700 text-white hover:bg-lime-900 font-bold transition-all shadow-md hover:-translate-y-0.5 text-xs">
                         <ExternalLink className="w-4 h-4" /> {character.googleAiLabel2 || 'Google AI Link 2'}
                       </a>
                     )}
@@ -153,9 +167,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
             )}
           </div>
 
-          {/* CỘT PHẢI: Hệ thống Tab Lore & Feedback */}
           <div className="w-full md:w-3/5 flex flex-col p-6 pt-8 md:overflow-y-auto h-fit md:h-full pb-12 md:pb-6">
-            
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#3C5C1D] mb-4 drop-shadow-sm">
               {character.name}
             </h2>
@@ -237,7 +249,6 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>
