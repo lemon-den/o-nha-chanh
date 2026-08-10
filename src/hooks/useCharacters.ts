@@ -1,40 +1,72 @@
 import { useState, useEffect } from 'react';
 import { Character } from '../types';
+import { db } from '../firebase';
+import { 
+  collection, 
+  onSnapshot, 
+  addDoc, 
+  updateDoc, 
+  doc, 
+  deleteDoc, 
+  query, 
+  orderBy 
+} from 'firebase/firestore';
 
 export function useCharacters() {
-  const [characters, setCharacters] = useState<Character[]>(() => {
-    try {
-      const saved = localStorage.getItem('rp-characters');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      console.error('Failed to load characters from local storage', e);
-      return [];
-    }
-  });
+  const [characters, setCharacters] = useState<Character[]>([]);
 
+  // Lắng nghe dữ liệu realtime từ Firebase Firestore
   useEffect(() => {
-    localStorage.setItem('rp-characters', JSON.stringify(characters));
-  }, [characters]);
+    const q = query(collection(db, 'characters'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const charData = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      })) as Character[];
+      setCharacters(charData);
+    }, (error) => {
+      console.error("Lỗi tải danh sách nhân vật từ Firebase: ", error);
+    });
 
-  const addCharacter = (char: Omit<Character, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newChar: Character = {
-      ...char,
-      id: crypto.randomUUID(),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    setCharacters((prev) => [newChar, ...prev]);
-    return newChar;
+    return () => unsubscribe();
+  }, []);
+
+  const addCharacter = async (char: Omit<Character, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      await addDoc(collection(db, 'characters'), {
+        ...char,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        views: 1,
+        clicks: 0,
+        feedbacks: []
+      });
+    } catch (error) {
+      console.error("Lỗi khi thêm bé chanh: ", error);
+      alert("Lỗi mạng rồi, không lưu được nhân vật lên mây!");
+    }
   };
 
-  const updateCharacter = (id: string, updates: Partial<Omit<Character, 'id' | 'createdAt' | 'updatedAt'>>) => {
-    setCharacters((prev) =>
-      prev.map((char) => (char.id === id ? { ...char, ...updates, updatedAt: Date.now() } : char))
-    );
+  const updateCharacter = async (id: string, updates: Partial<Omit<Character, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    try {
+      const charDocRef = doc(db, 'characters', id);
+      await updateDoc(charDocRef, {
+        ...updates,
+        updatedAt: Date.now()
+      });
+    } catch (error) {
+      console.error("Lỗi khi cập nhật bé chanh: ", error);
+      alert("Lỗi mạng rồi, không cập nhật được!");
+    }
   };
 
-  const deleteCharacter = (id: string) => {
-    setCharacters((prev) => prev.filter((char) => char.id !== id));
+  const deleteCharacter = async (id: string) => {
+    try {
+      const charDocRef = doc(db, 'characters', id);
+      await deleteDoc(charDocRef);
+    } catch (error) {
+      console.error("Lỗi khi xóa bé chanh: ", error);
+    }
   };
 
   return {
