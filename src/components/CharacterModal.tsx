@@ -84,7 +84,7 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin }: 
         </div>
 
         {/* Cột trái: Ảnh & Cụm Link GG AI (Hỗ trợ 2 link riêng biệt + Khóa mật khẩu & Gợi ý) */}
-        <div className="w-full md:w-2/5 md:border-r-2 border-[#FDE047] flex flex-col p-6 bg-white/30 justify-between">
+        <div className="w-full md:w-2/5 md:border-r-2 border-[#FDE047] flex flex-col p-6 bg-white/30 justify-between overflow-y-auto max-h-[80vh]">
           <div>
             <div className="aspect-[3/4] w-full rounded-3xl bg-white/80 overflow-hidden relative shadow-inner border-2 border-[#FDE047] mt-8 md:mt-0">
               {character.portrait ? (
