@@ -3,7 +3,7 @@ import { Character } from '../types';
 import { Plus, Search, Sparkles } from 'lucide-react';
 import CharacterCard from './CharacterCard';
 import CharacterModal from './CharacterModal';
-import { doc, setDoc, increment } from 'firebase/firestore';
+import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 
 interface DashboardProps {
@@ -19,6 +19,7 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
   const [selectedTag, setSelectedTag] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
+  // MAGIC 🪄: Chỉ lưu ID của nhân vật được chọn thay vì lưu toàn bộ dữ liệu cũ
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [showAllTags, setShowAllTags] = useState(false);
 
@@ -31,15 +32,17 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
     return matchesTag && matchesSearch;
   });
 
+  // Lấy dữ liệu LIVE (luôn mới nhất) từ danh sách
   const liveSelectedCharacter = characters.find(c => c.id === selectedCharacterId);
 
+  // Xử lý khi bấm mở thẻ nhân vật
   const handleOpenCharacter = async (char: Character) => {
     setSelectedCharacterId(char.id); 
+    // Tự động báo lên mây: "Cộng 1 View liền!"
     if (char.id) {
       try {
         const charRef = doc(db, 'characters', char.id);
-        // Dùng setDoc với merge để tránh lỗi "No document to update"
-        await setDoc(charRef, { views: increment(1) }, { merge: true });
+        await updateDoc(charRef, { views: increment(1) });
       } catch (error) {
         console.error("Lỗi đếm view: ", error);
       }
@@ -98,13 +101,11 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
             {tag}
           </button>
         ))}
-
         {!showAllTags && allTags.length > 8 && (
           <button onClick={() => setShowAllTags(true)} className="px-5 py-2.5 rounded-full text-sm font-bold bg-[#FFF9C4] text-[#3C5C1D] hover:bg-[#FDE047] transition-all shadow-sm border border-[#FDE047] border-dashed">
             +{allTags.length - 8} tags nữa...
           </button>
         )}
-
         {showAllTags && allTags.length > 8 && (
           <button onClick={() => setShowAllTags(false)} className="px-5 py-2.5 rounded-full text-sm font-bold bg-white/60 text-[#3C5C1D] hover:bg-white transition-all shadow-sm border border-[#3C5C1D]/20">
             Thu gọn lại 🍋
@@ -129,6 +130,7 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
         </div>
       )}
 
+      {/* Truyền dữ liệu LIVE vào bảng */}
       {liveSelectedCharacter && (
         <CharacterModal 
           character={liveSelectedCharacter}
@@ -146,7 +148,6 @@ export default function Dashboard({ characters, onCreate, onEdit, onDelete, isAd
           }}
         />
       )}
-
     </div>
   );
 }
