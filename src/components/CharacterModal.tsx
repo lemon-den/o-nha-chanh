@@ -4,7 +4,7 @@ import { X, ExternalLink, User, Lock, Eye, MousePointerClick, Send, MessageSquar
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import { db } from '../firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc, increment } from 'firebase/firestore';
 
 interface CharacterModalProps {
   character: Character;
@@ -24,23 +24,23 @@ export default function CharacterModal({ character, onClose, onEdit, isAdmin, on
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
 
-  // --- CƠ CHẾ ĐẾM VIEW TỰ ĐỘNG KHI MỞ MODAL ---
+  // --- 1. TỰ ĐỘNG CỘNG 1 VIEW KHI MỞ BẢNG ---
   const hasViewedRef = useRef(false);
 
   useEffect(() => {
     if (!hasViewedRef.current && character.id) {
       const charRef = doc(db, 'characters', character.id);
-      updateDoc(charRef, { views: increment(1) }).catch(console.error);
+      setDoc(charRef, { views: increment(1) }, { merge: true }).catch(console.error);
       hasViewedRef.current = true;
     }
   }, [character.id]);
 
-  // --- CƠ CHẾ ĐẾM CLICK KHI BẤM LINK GOOGLE AI ---
+  // --- 2. TỰ ĐỘNG CỘNG 1 CLICK KHI BẤM LINK GOOGLE AI ---
   const handleTrackClick = async () => {
     if (character.id) {
       try {
         const charRef = doc(db, 'characters', character.id);
-        await updateDoc(charRef, { clicks: increment(1) });
+        await setDoc(charRef, { clicks: increment(1) }, { merge: true });
       } catch (error) {
         console.error("Lỗi đếm click: ", error);
       }
